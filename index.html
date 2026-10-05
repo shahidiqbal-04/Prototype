@@ -1,0 +1,1274 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Revisit Retention CRM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Onest:wght@400;500;600;700&family=Noto+Nastaliq+Urdu&display=swap">
+<style>
+/* Layout: fixed left rail + scrolling workspace; the rail turns into a top scroller on narrow screens */
+:root{
+  --bg:#F2F4F1; --surface:#FFFFFF; --surface-2:#EBEFEB; --ink:#14201B; --ink-2:#55625C; --ink-3:#85918B; --line:#DAE1DC;
+  --accent:#0B7A63; --accent-ink:#FFFFFF; --accent-soft:#DAEFE7;
+  --gold:#A5761A; --gold-soft:#F5E9CF;
+  --s-new:#2F62D0; --s-active:#1C8A56; --s-due:#B07A06; --s-overdue:#CC5B16; --s-risk:#C0392D; --s-lost:#76817C;
+  --cam:#0C1311; --cam-line:#22302B; --cam-body:#34443E; --cam-text:#E8F0EC;
+  --wa-bg:#E8E1D5; --wa-in:#FFFFFF; --wa-out:#D5F4CB; --wa-head:#0B6B57; --wa-ink:#15201B;
+  --shadow:0 1px 2px rgba(20,32,27,.05),0 10px 28px rgba(20,32,27,.07);
+  --overlay:rgba(12,20,17,.45);
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"Onest","Segoe UI",system-ui,sans-serif;
+  --f-urdu:"Noto Nastaliq Urdu","Jameel Noori Nastaleeq",serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E1412; --surface:#151D1A; --surface-2:#1B2521; --ink:#E6EEEA; --ink-2:#A0AFA8; --ink-3:#71807A; --line:#27332E;
+  --accent:#3DC19F; --accent-ink:#04231B; --accent-soft:#12372E;
+  --gold:#E0B25A; --gold-soft:#3A2F17;
+  --s-new:#7EA2F2; --s-active:#4CC98B; --s-due:#E3B23C; --s-overdue:#F08A4B; --s-risk:#F06B5E; --s-lost:#95A19B;
+  --wa-bg:#1A221F; --wa-in:#24302B; --wa-out:#1F4A3A; --wa-head:#12332A; --wa-ink:#E6EEEA;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px rgba(0,0,0,.25);
+  --overlay:rgba(0,0,0,.6); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1412; --surface:#151D1A; --surface-2:#1B2521; --ink:#E6EEEA; --ink-2:#A0AFA8; --ink-3:#71807A; --line:#27332E;
+  --accent:#3DC19F; --accent-ink:#04231B; --accent-soft:#12372E;
+  --gold:#E0B25A; --gold-soft:#3A2F17;
+  --s-new:#7EA2F2; --s-active:#4CC98B; --s-due:#E3B23C; --s-overdue:#F08A4B; --s-risk:#F06B5E; --s-lost:#95A19B;
+  --wa-bg:#1A221F; --wa-in:#24302B; --wa-out:#1F4A3A; --wa-head:#12332A; --wa-ink:#E6EEEA;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px rgba(0,0,0,.25);
+  --overlay:rgba(0,0,0,.6); color-scheme:dark}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+.num{font-variant-numeric:tabular-nums}
+.muted{color:var(--ink-2)}
+.faint{color:var(--ink-3)}
+.small{font-size:12.5px}
+.eyebrow{font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+
+/* shell */
+.app{display:grid;grid-template-columns:232px minmax(0,1fr);min-height:100%}
+.rail{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:18px;padding:20px 14px;background:var(--surface);border-right:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;padding:0 8px}
+.brand-mark{width:32px;height:32px;border-radius:9px;background:var(--accent);display:grid;place-items:center;color:var(--accent-ink);flex:none}
+.brand-name{font-family:var(--f-display);font-weight:700;font-size:19px;letter-spacing:-.02em}
+.brand-sub{font-size:11.5px;color:var(--ink-3);line-height:1.2}
+.nav{display:flex;flex-direction:column;gap:2px;overflow:auto}
+.nav-label{padding:12px 10px 4px}
+.nav a{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;color:var(--ink-2);text-decoration:none;font-weight:500;white-space:nowrap}
+.nav a:hover{background:var(--surface-2);color:var(--ink)}
+.nav a.on{background:var(--accent-soft);color:var(--ink)}
+.nav a.on svg{color:var(--accent)}
+.nav svg{width:18px;height:18px;flex:none}
+.nav .count{margin-left:auto;background:var(--s-risk);color:#fff;font-size:11px;font-weight:700;border-radius:99px;padding:1px 7px}
+.nav .later{margin-left:auto;font-size:10.5px;color:var(--ink-3);border:1px solid var(--line);border-radius:99px;padding:0 6px}
+.rail-foot{margin-top:auto;padding:12px 10px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:2px}
+.main{min-width:0;display:flex;flex-direction:column}
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 28px;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.topbar h1{font-size:22px}
+.topbar .sub{font-size:12.5px;color:var(--ink-2)}
+.top-right{margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.proto{font-size:11.5px;color:var(--ink-2);border:1px dashed var(--line);border-radius:99px;padding:3px 10px}
+.me{width:34px;height:34px;border-radius:50%;background:var(--surface-2);display:grid;place-items:center;font-weight:600;font-size:12.5px;border:1px solid var(--line)}
+#view{padding:24px 28px 48px;display:flex;flex-direction:column;gap:20px;min-width:0}
+
+/* primitives */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;min-width:0}
+.card-h{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.card-h h2{font-size:16.5px}
+.card-h .right{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.grid-2{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:20px}
+.grid-2.even{grid-template-columns:repeat(2,minmax(0,1fr))}
+.grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.stack{display:flex;flex-direction:column;gap:12px}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:7px 12px;font-weight:600;font-size:13px;color:var(--ink);white-space:nowrap}
+.btn:hover{border-color:var(--ink-3)}
+.btn svg{width:16px;height:16px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.07)}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--ink-2)}
+.btn.ghost:hover{background:var(--surface-2);color:var(--ink)}
+.btn.danger{color:var(--s-risk)}
+.btn.sm{padding:5px 10px;font-size:12.5px}
+.btn.big{padding:10px 16px;font-size:14px}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;border-radius:99px;padding:2px 9px 2px 8px;white-space:nowrap;color:var(--c);background:color-mix(in srgb,var(--c) 13%,transparent)}
+.pill::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--c)}
+.pill.plain::before{display:none}
+.tier{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:700;border-radius:6px;padding:1px 7px;white-space:nowrap;border:1px solid var(--line);color:var(--ink-2)}
+.tier.vip{background:var(--gold-soft);color:var(--gold);border-color:transparent}
+.avatar{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:13px;flex:none;color:var(--ink);background:color-mix(in srgb,var(--h) 22%,var(--surface))}
+.avatar.lg{width:64px;height:64px;font-size:21px}
+.who{display:flex;align-items:center;gap:10px;min-width:0}
+.who b{display:block;font-weight:600}
+.who span{display:block;font-size:12.5px;color:var(--ink-3)}
+.link{color:var(--accent);font-weight:600;text-decoration:none;background:none;border:0;padding:0}
+.link:hover{text-decoration:underline}
+input.field,select.field,textarea.field{width:100%;border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:8px 11px}
+input.field:focus,select.field:focus,textarea.field:focus{outline:2px solid var(--accent);outline-offset:0;border-color:transparent}
+label.lbl{display:block;font-size:12.5px;font-weight:600;color:var(--ink-2);margin-bottom:5px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:5px 11px;font-size:12.5px;font-weight:600;color:var(--ink-2)}
+.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip .n{opacity:.65;margin-left:4px}
+.switch{position:relative;width:38px;height:22px;flex:none;border-radius:99px;background:var(--line);border:0;padding:0;transition:background .15s}
+.switch::after{content:"";position:absolute;left:3px;top:3px;width:16px;height:16px;border-radius:50%;background:var(--surface);box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .15s}
+.switch.on{background:var(--accent)}
+.switch.on::after{transform:translateX(16px)}
+.divider{height:1px;background:var(--line);margin:4px 0}
+.note{font-size:12.5px;color:var(--ink-2);background:var(--surface-2);border-radius:10px;padding:10px 12px}
+.check-list{display:flex;flex-direction:column;gap:6px;font-size:13px}
+.check-list div{display:flex;gap:8px;align-items:flex-start}
+.ok{color:var(--s-active)} .warn{color:var(--s-due)} .bad{color:var(--s-risk)}
+
+/* KPIs */
+.kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.kpi .v{font-family:var(--f-display);font-size:26px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.15}
+.kpi .l{font-size:12.5px;color:var(--ink-2);font-weight:500}
+.kpi .d{font-size:12px;color:var(--ink-3)}
+.kpi.hero{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.kpi.hero .l,.kpi.hero .d{color:var(--accent-ink);opacity:.85}
+
+/* tables */
+.table-wrap{overflow-x:auto;margin:0 -18px;padding:0 18px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:left;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:10px;border-bottom:1px solid var(--line);vertical-align:middle;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+tbody tr.click{cursor:pointer}
+tbody tr.click:hover td{background:var(--surface-2)}
+td.r,th.r{text-align:right}
+
+/* action items */
+.act{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:14px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}
+.act:last-child{border-bottom:0}
+.act .why{font-size:13px;color:var(--ink-2);margin-top:3px}
+.act .todo{font-size:13px;font-weight:600;margin-top:6px;display:flex;align-items:center;gap:6px}
+.act .todo svg{width:15px;height:15px;color:var(--accent)}
+.act .val{text-align:right;min-width:0}
+.act .val b{display:block;font-family:var(--f-display);font-size:16px;font-variant-numeric:tabular-nums}
+.act .btns{display:flex;gap:6px;justify-content:flex-end;margin-top:8px;flex-wrap:wrap}
+.stripe{width:4px;align-self:stretch;border-radius:4px;background:var(--c)}
+.act.full{grid-template-columns:4px auto minmax(0,1fr) auto}
+
+/* feed */
+.feed{display:flex;flex-direction:column}
+.feed-i{display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.feed-i:last-child{border-bottom:0}
+.feed-i time{font-size:12.5px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.feed-i.fresh{animation:fresh 1.4s ease-out}
+@keyframes fresh{from{background:var(--accent-soft)}to{background:transparent}}
+.src{font-size:12px;color:var(--ink-3)}
+
+/* camera */
+.cams{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:14px}
+.cam{background:var(--cam);border-radius:14px;overflow:hidden;position:relative}
+.cam svg{display:block;width:100%;height:auto}
+.cam-meta{position:absolute;left:12px;top:10px;font-size:11px;letter-spacing:.08em;color:var(--cam-text);opacity:.8;font-variant-numeric:tabular-nums;display:flex;gap:8px;align-items:center}
+.rec{width:7px;height:7px;border-radius:50%;background:#E5484D;animation:blink 1.6s infinite}
+@keyframes blink{50%{opacity:.25}}
+.cam-state{position:absolute;right:12px;top:8px;font-size:11px;color:var(--cam-text);background:rgba(255,255,255,.1);border-radius:99px;padding:2px 9px}
+.cam-small .cam-meta{font-size:10px}
+
+/* profile */
+.profile{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:20px;align-items:start}
+.p-head{display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.p-head h2{font-size:24px}
+.stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.stats div{background:var(--surface);padding:12px}
+.stats b{display:block;font-family:var(--f-display);font-size:16.5px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.stats span{font-size:12px;color:var(--ink-3)}
+.insight{border:1px solid color-mix(in srgb,var(--accent) 35%,var(--line));background:color-mix(in srgb,var(--accent-soft) 55%,var(--surface))}
+.insight .eyebrow{color:var(--accent);display:flex;align-items:center;gap:6px}
+.insight p{margin:8px 0 0;line-height:1.6}
+.kv{display:grid;grid-template-columns:130px minmax(0,1fr);gap:8px 12px;font-size:13.5px}
+.kv dt{color:var(--ink-3)}
+.kv dd{margin:0;min-width:0}
+.tl{position:relative;display:flex;flex-direction:column}
+.tl-i{display:grid;grid-template-columns:28px minmax(0,1fr);gap:12px;position:relative;padding-bottom:18px}
+.tl-i::before{content:"";position:absolute;left:13.5px;top:28px;bottom:0;width:1px;background:var(--line)}
+.tl-i:last-child::before{display:none}
+.tl-dot{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:color-mix(in srgb,var(--c) 15%,var(--surface));color:var(--c)}
+.tl-dot svg{width:14px;height:14px}
+.tl-i b{font-weight:600}
+.tl-i .when{font-size:12px;color:var(--ink-3)}
+.tl-i .txt{font-size:13px;color:var(--ink-2)}
+
+/* whatsapp phone */
+.phone{width:100%;max-width:320px;margin:0 auto;border-radius:28px;border:8px solid var(--ink);overflow:hidden;background:var(--wa-bg);box-shadow:var(--shadow)}
+.wa-head{background:var(--wa-head);color:#fff;padding:10px 14px;display:flex;align-items:center;gap:10px}
+.wa-head .avatar{width:30px;height:30px;font-size:11px;background:rgba(255,255,255,.2);color:#fff}
+.wa-head b{font-size:13.5px;display:block}
+.wa-head span{font-size:11px;opacity:.8}
+.wa-body{padding:14px 12px 18px;display:flex;flex-direction:column;gap:8px;min-height:240px}
+.bub{max-width:88%;background:var(--wa-in);color:var(--wa-ink);border-radius:10px;padding:8px 10px 6px;font-size:13px;line-height:1.45;box-shadow:0 1px 1px rgba(0,0,0,.08);align-self:flex-start;overflow-wrap:anywhere}
+.bub.out{align-self:flex-end;background:var(--wa-out)}
+.bub .t{display:block;text-align:right;font-size:10.5px;opacity:.55;margin-top:2px}
+.bub .var{background:color-mix(in srgb,var(--accent) 18%,transparent);border-radius:4px;padding:0 3px}
+.bub .btnrow{display:block;border-top:1px solid color-mix(in srgb,var(--wa-ink) 12%,transparent);margin:8px -10px -6px;padding:7px;text-align:center;color:#128C7E;font-weight:600}
+.bub.urdu{direction:rtl;text-align:right;font-family:var(--f-urdu);font-size:14px;line-height:2.2}
+.wa-day{align-self:center;font-size:11px;background:var(--wa-in);color:var(--wa-ink);opacity:.8;border-radius:6px;padding:2px 8px}
+
+/* bars */
+.bars svg{width:100%;height:auto;display:block}
+.health{display:flex;height:14px;border-radius:99px;overflow:hidden;gap:2px}
+.health div{background:var(--c)}
+.legend{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 16px;margin-top:14px}
+.legend div{display:flex;flex-direction:column;gap:2px;font-size:12.5px;color:var(--ink-2)}
+.legend b{font-family:var(--f-display);font-size:18px;color:var(--ink);font-variant-numeric:tabular-nums}
+.legend i{display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--c);margin-right:6px}
+.meter{height:8px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+.meter div{height:100%;background:var(--c,var(--accent));border-radius:99px}
+.funnel{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-top:12px}
+.funnel div{background:var(--surface-2);border-radius:10px;padding:8px 10px}
+.funnel b{display:block;font-family:var(--f-display);font-size:17px;font-variant-numeric:tabular-nums}
+.funnel span{font-size:11.5px;color:var(--ink-3)}
+
+/* later */
+.later-card{max-width:760px}
+.later-card ul{margin:10px 0 0;padding-left:18px;line-height:1.8}
+
+/* modal + toast */
+.overlay{position:fixed;inset:0;background:var(--overlay);display:grid;place-items:center;z-index:50;padding:16px;animation:fade .15s}
+@keyframes fade{from{opacity:0}}
+.dialog{background:var(--surface);border-radius:16px;width:100%;max-width:620px;max-height:calc(100% - 32px);overflow:auto;box-shadow:var(--shadow);border:1px solid var(--line)}
+.dialog.wide{max-width:820px}
+.d-head{display:flex;align-items:flex-start;gap:12px;padding:18px 20px 0}
+.d-head h2{font-size:19px}
+.d-body{padding:16px 20px;display:flex;flex-direction:column;gap:14px}
+.d-foot{padding:14px 20px 18px;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;border-top:1px solid var(--line)}
+.x{margin-left:auto;border:0;background:none;color:var(--ink-3);padding:4px}
+.x svg{width:20px;height:20px}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.consent{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-size:13px}
+.consent input{margin-top:3px;accent-color:var(--accent)}
+.consent b{display:block}
+.radio-card{display:flex;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:10px;cursor:pointer;font-size:13px}
+.radio-card:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+.radio-card input{accent-color:var(--accent)}
+.radio-card .n{margin-left:auto;color:var(--ink-3);font-variant-numeric:tabular-nums}
+#toasts{position:fixed;right:20px;bottom:calc(20px + env(safe-area-inset-bottom,0px));z-index:60;display:flex;flex-direction:column;gap:10px;width:min(380px,calc(100% - 32px))}
+.toast{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--c,var(--accent));border-radius:12px;box-shadow:var(--shadow);padding:12px 14px;display:flex;gap:10px;align-items:flex-start;animation:slide .25s ease-out}
+@keyframes slide{from{transform:translateY(12px);opacity:0}}
+.toast b{display:block;font-size:13.5px}
+.toast p{margin:2px 0 0;font-size:12.5px;color:var(--ink-2)}
+.toast .btn{margin-top:8px}
+.toast .x{margin-left:auto;padding:0}
+.toast .x svg{width:16px;height:16px}
+
+.empty{padding:24px;text-align:center;color:var(--ink-3)}
+.pulse{animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 6px color-mix(in srgb,var(--accent) 22%,transparent)}}
+
+@media (max-width:1280px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:1100px){.grid-2,.grid-2.even,.profile,.grid-3{grid-template-columns:minmax(0,1fr)}.cams{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:860px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  .rail{position:sticky;top:0;height:auto;z-index:30;flex-direction:row;align-items:center;padding:10px 16px;gap:12px;border-right:0;border-bottom:1px solid var(--line)}
+  .brand-sub,.nav-label,.rail-foot,.nav .later{display:none}
+  .nav{flex-direction:row;overflow-x:auto;scrollbar-width:none}
+  .nav a{padding:7px 10px}
+  .nav a span.t{display:none}
+  .nav a.on span.t{display:inline}
+  .topbar{position:static;padding:14px 16px}
+  #view{padding:16px 16px 40px}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .funnel{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:560px){
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .act,.act.full{grid-template-columns:minmax(0,1fr)}
+  .act .stripe,.act>.avatar{display:none}
+  .act .val{text-align:left}
+  .act .btns{justify-content:flex-start}
+  .form-grid{grid-template-columns:minmax(0,1fr)}
+  .legend{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .kv{grid-template-columns:minmax(0,1fr)}
+  .kv dt{margin-top:6px}
+  .brand-name{display:none}
+  .proto{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="app">
+  <aside class="rail">
+    <div class="brand">
+      <div class="brand-mark"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v5h-5"/></svg></div>
+      <div><div class="brand-name">Revisit</div><div class="brand-sub">Glow Studio · Gulberg</div></div>
+    </div>
+    <nav class="nav" id="nav"></nav>
+    <div class="rail-foot">
+      <span class="eyebrow">Signed in</span>
+      <span class="small">Rida Aslam · Front desk manager</span>
+    </div>
+  </aside>
+  <div class="main">
+    <header class="topbar">
+      <div><h1 id="page-title">Dashboard</h1><div class="sub" id="page-sub"></div></div>
+      <div class="top-right">
+        <span class="proto">Prototype · sample data</span>
+        <button class="btn primary pulse" data-act="simulate" id="sim-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="10" r="3"/><path d="M7 17c1-2.5 3-3.5 5-3.5s4 1 5 3.5"/></svg>Simulate arrival</button>
+        <div class="me" title="Rida Aslam">RA</div>
+      </div>
+    </header>
+    <main id="view"></main>
+  </div>
+</div>
+<div id="modal-root"></div>
+<div id="toasts" aria-live="polite"></div>
+
+<script>
+/* ---------- helpers ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+const fmt = n => 'Rs ' + Math.round(n).toLocaleString('en-US');
+const fmtK = n => n >= 1e6 ? 'Rs ' + (n/1e6).toFixed(2) + 'M' : n >= 1e4 ? 'Rs ' + Math.round(n/1e3) + 'k' : fmt(n);
+const DAY = 864e5, BASE = Date.UTC(2026, 8, 30);
+const dateAgo = d => new Date(BASE - d*DAY).toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric', timeZone:'UTC'});
+const ago = d => d === 0 ? 'Today' : d === 1 ? 'Yesterday' : d + ' days ago';
+const initials = n => n.split(' ').map(w => w[0]).slice(0,2).join('');
+const first = c => c.name.split(' ')[0];
+const hue = id => ['#0B7A63','#2F62D0','#A5761A','#C0392D','#7B4BC4','#CC5B16','#1C8A56','#3A7CA5'][id % 8];
+
+const I = {
+  grid:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
+  scan:'<path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="10" r="3"/><path d="M7 17c1-2.5 3-3.5 5-3.5s4 1 5 3.5"/>',
+  users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14.5c2 .6 3.2 2.6 3.5 5.5"/>',
+  bolt:'<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>',
+  cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+  mega:'<path d="M3 10v4a1 1 0 0 0 1 1h3l6 4V5L7 9H4a1 1 0 0 0-1 1z"/><path d="M17 8.5a5 5 0 0 1 0 7"/>',
+  chat:'<path d="M20 12a8 8 0 0 1-11.6 7.1L4 20l1-4.2A8 8 0 1 1 20 12z"/>',
+  star:'<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>',
+  shield:'<path d="M12 3 4 6v6c0 4.5 3.4 8.3 8 9 4.6-.7 8-4.5 8-9V6z"/><path d="m9 12 2 2 4-4"/>',
+  branch:'<path d="M3 21V9l9-6 9 6v12"/><path d="M9 21v-6h6v6"/>',
+  trend:'<path d="M4 19h16"/><path d="M6 15l4-5 3 3 5-7"/>',
+  x:'<path d="M6 6l12 12M18 6 6 18"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>',
+  phone:'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/>',
+  check:'<path d="m5 12 5 5 9-10"/>',
+  arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',
+  back:'<path d="M19 12H5M11 6l-6 6 6 6"/>',
+  spark:'<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6"/>',
+  send:'<path d="M4 12 20 4l-6 16-3-7z"/>',
+  gift:'<rect x="3" y="8" width="18" height="5" rx="1"/><path d="M5 13v8h14v-8M12 8v13M12 8c-2-4-6-4-6-1.5S9 8 12 8zM12 8c2-4 6-4 6-1.5S15 8 12 8z"/>',
+  user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4.5-6 8-6s7 2 8 6"/>',
+  lock:'<rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>',
+  msg:'<path d="M4 5h16v11H9l-5 4z"/>',
+  cam:'<rect x="3" y="6" width="13" height="12" rx="2"/><path d="m16 10 5-3v10l-5-3"/>',
+  download:'<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',
+  trash:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>'
+};
+const ic = (n, w=16) => `<svg viewBox="0 0 24 24" width="${w}" height="${w}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[n]}</svg>`;
+
+/* ---------- sample data ---------- */
+const BUSINESS = 'Glow Studio';
+const C = [
+  {id:1,name:'Ayesha Khan',phone:'+92 300 412 7788',tier:'VIP',visits:24,spend:186000,last:41,interval:28,service:'Hair colour + blow-dry',alt:'Hair spa treatment',staff:'Sana',face:true,mkt:true,lang:'English',bday:'14 Oct',fb:5,prefs:'Saturday mornings · Ammonia-free colour · Green tea, no sugar',notes:'Always patch-test new colour brands (sensitive scalp).',refs:2,refRev:10700},
+  {id:2,name:'Fatima Malik',phone:'+92 321 550 1934',tier:'High value',visits:18,spend:97200,last:0,interval:21,service:'Keratin treatment',alt:'Blow-dry',staff:'Sana',face:true,mkt:true,lang:'English',bday:'2 Mar',fb:5,prefs:'Late mornings · Quiet chair by the window',notes:'Brings her own heat protectant.',refs:3,refRev:21900},
+  {id:3,name:'Hira Ahmed',phone:'+92 333 208 6621',tier:'Standard',visits:7,spend:24500,last:27,interval:26,service:'Hydra facial',alt:'Eyebrow threading',staff:'Maria',face:true,mkt:true,lang:'Urdu',bday:'21 Jul',fb:4,fbNote:'Facial was good, room was a bit cold.',prefs:'After-work slots (6 pm+)',notes:'',refs:0},
+  {id:4,name:'Zainab Raza',phone:'+92 300 877 4410',tier:'VIP',visits:31,spend:212400,last:64,interval:25,service:'Signature facial + mani-pedi',alt:'Gel manicure',staff:'Maria',face:true,mkt:true,lang:'English',bday:'9 Dec',fb:2,fbNote:'Waited 35 minutes past my appointment time.',prefs:'Weekday afternoons · Unscented products',notes:'Regular since 2023. Books for her mother on Eid.',refs:1,refRev:6400},
+  {id:5,name:'Mariam Siddiqui',phone:'+92 345 119 0482',tier:'Standard',visits:1,spend:4500,last:5,interval:30,service:'Haircut + blow-dry',staff:'Sana',face:true,mkt:true,lang:'English',bday:'30 Jan',fb:5,fbNote:'Loved the blow-dry, Sana was great!',prefs:'',notes:'Referred by Ayesha Khan.',refBy:1,refs:0},
+  {id:6,name:'Noor Fatima',phone:'+92 301 764 3390',tier:'Standard',visits:5,spend:17800,last:212,interval:35,service:'Full-body waxing',staff:'Maria',face:false,mkt:false,lang:'Urdu',bday:'18 Apr',fb:4,prefs:'',notes:'',refs:0},
+  {id:7,name:'Usman Tariq',phone:'+92 322 640 2275',tier:'High value',visits:26,spend:52000,last:9,interval:14,service:'Haircut + beard trim',alt:'Hot towel shave',staff:'Imran',face:true,mkt:true,lang:'English',bday:'5 Nov',fb:5,prefs:'Fade, no. 2 on the sides',notes:'Brought 4 friends from his office.',refs:4,refRev:16800},
+  {id:8,name:'Ali Hassan',phone:'+92 334 902 1156',tier:'Standard',visits:11,spend:19800,last:22,interval:21,service:'Haircut',staff:'Imran',face:true,mkt:true,lang:'Urdu',bday:'27 Aug',fb:4,prefs:'Sunday mornings',notes:'',refs:0},
+  {id:9,name:'Rabia Qureshi',phone:'+92 300 339 8804',tier:'High value',visits:14,spend:88600,last:49,interval:30,service:'Balayage touch-up',alt:'Toner + gloss',staff:'Sana',face:true,mkt:true,lang:'English',bday:'11 Oct',fb:5,prefs:'Cool-toned blonde · Olaplex add-on',notes:'Birthday next month.',refs:1,refRev:5200},
+  {id:10,name:'Mehwish Iqbal',phone:'+92 321 777 0915',tier:'VIP',visits:29,spend:241000,last:0,interval:21,service:'Colour + treatment',alt:'Blow-dry',staff:'Sana',face:true,mkt:true,lang:'English',bday:'3 Feb',fb:5,prefs:'Friday afternoons · Cappuccino',notes:'Top referrer. Send new-service previews first.',refs:5,refRev:38400},
+  {id:11,name:'Bilal Sheikh',phone:'+92 315 480 6627',tier:'Standard',visits:6,spend:9600,last:190,interval:20,service:'Haircut',staff:'Imran',face:false,mkt:false,lang:'Urdu',bday:'16 Jun',fb:3,prefs:'',notes:'',refs:0},
+  {id:12,name:'Amna Yousaf',phone:'+92 346 512 7703',tier:'Standard',visits:1,spend:6200,last:2,interval:30,service:'Gel manicure',staff:'Maria',face:false,mkt:true,lang:'English',bday:'22 Sep',fb:5,prefs:'',notes:'Referred by Ayesha Khan.',refBy:1,refs:0},
+  {id:13,name:'Kiran Shah',phone:'+92 300 615 2248',tier:'High value',visits:12,spend:64300,last:71,interval:28,service:'Keratin treatment',staff:'Sana',face:true,mkt:true,lang:'English',bday:'8 May',fb:4,prefs:'Weekend slots only',notes:'',refs:0},
+  {id:14,name:'Saad Butt',phone:'+92 323 870 4419',tier:'Standard',visits:9,spend:14400,last:0,interval:18,service:'Haircut + beard trim',staff:'Imran',face:true,mkt:true,lang:'Urdu',bday:'12 Dec',fb:5,prefs:'',notes:'',refs:0},
+  {id:15,name:'Iqra Nadeem',phone:'+92 331 204 9938',tier:'Standard',visits:8,spend:28800,last:32,interval:30,service:'Classic facial',staff:'Maria',face:true,mkt:true,lang:'English',bday:'29 Mar',fb:4,prefs:'',notes:'',refs:0},
+  {id:16,name:'Hamza Ali',phone:'+92 300 118 5572',tier:'Standard',visits:10,spend:15000,last:30,interval:18,service:'Haircut',staff:'Imran',face:false,mkt:true,lang:'Urdu',bday:'1 Jan',fb:3,fbNote:'Barber was rushed.',prefs:'',notes:'',refs:0}
+];
+const byId = id => C.find(c => c.id === +id);
+
+const STATUS = {
+  'New':{c:'var(--s-new)'}, 'Active':{c:'var(--s-active)'}, 'Due':{c:'var(--s-due)'},
+  'Overdue':{c:'var(--s-overdue)'}, 'At Risk':{c:'var(--s-risk)'}, 'Lost':{c:'var(--s-lost)'}
+};
+const P = {'Due':.8,'Overdue':.6,'At Risk':.35,'Lost':.15};
+function status(c){
+  const r = c.last / c.interval;
+  if (c.visits <= 1 && r < 1) return 'New';
+  if (c.last > 180 || r > 3) return 'Lost';
+  if (r > 2 || (c.fb <= 2 && !c.fbResolved)) return 'At Risk';
+  if (r > 1.2) return 'Overdue';
+  if (r >= .9) return 'Due';
+  return 'Active';
+}
+const avg = c => c.spend / c.visits;
+const risk = c => P[status(c)] ? avg(c) * (365 / c.interval) * P[status(c)] : 0;
+const pill = s => `<span class="pill" style="--c:${STATUS[s].c}">${s}</span>`;
+const tier = t => `<span class="tier ${t==='VIP'?'vip':''}">${t==='VIP'?'★ ':''}${t}</span>`;
+const av = (c, cls='') => `<div class="avatar ${cls}" style="--h:${hue(c.id)}">${esc(initials(c.name))}</div>`;
+
+function reason(c){
+  const s = status(c);
+  if (s === 'New') return `First visit ${ago(c.last).toLowerCase()} for ${c.service}. No return booking yet.`;
+  if (s === 'Due') return `Usually returns every ${c.interval} days; last visit was ${c.last} days ago. No booking yet.`;
+  if (s === 'Overdue') return `${c.last - c.interval} days past the usual ${c.interval}-day return. Read the last reminder, no reply.`;
+  if (s === 'At Risk') return c.fb <= 2 ? `Rated last visit ${c.fb}/5: “${c.fbNote}” ${c.last} days since then.` : `${c.last} days since last visit, more than twice the usual ${c.interval}-day gap.`;
+  if (s === 'Lost') return `No visit in ${c.last} days (usual gap ${c.interval} days).`;
+  return '';
+}
+function action(c){
+  const s = status(c);
+  if (s === 'New') return {label:'Send thank-you + feedback request', kind:'msg', tpl:'feedback'};
+  if (s === 'Due') return {label:'Send rebooking reminder', kind:'msg', tpl:'rebook'};
+  if (s === 'Overdue') return c.tier !== 'Standard' ? {label:`Personal call from ${c.staff}`, kind:'call'} : {label:'Send personal follow-up', kind:'msg', tpl:'followup'};
+  if (s === 'At Risk') return c.fb <= 2 ? {label:'Manager call about feedback', kind:'call'} : {label:'Send 15% comeback offer', kind:'msg', tpl:'offer'};
+  if (s === 'Lost') return {label:'Add to win-back campaign', kind:'campaign'};
+  return null;
+}
+function insight(c){
+  const custom = {
+    1:`Ayesha has come every 28 days for two years, almost always for colour with Sana. She is now 13 days past her usual return and read the last reminder without replying, which is unusual for her. She is your 6th most valuable customer and has referred 2 new clients. A personal call from Sana will work better than another template.`,
+    4:`Zainab is one of your longest-standing VIPs (31 visits, Rs 212k). Her last rating was 2/5 because she waited 35 minutes, and she has not returned in 64 days, over double her usual gap. The manager should call to apologise before any offer is sent.`,
+    3:`Hira books a hydra facial roughly monthly, always after 6 pm. She is due this week. She responds well to reminders (booked within 2 days of the last 3). A rebooking reminder with evening slots should be enough.`,
+    9:`Rabia keeps a strict 30-day balayage schedule and is now 19 days late. Her birthday is on 11 Oct, so a birthday message with a toner add-on is a natural reason to reach out.`,
+    5:`Mariam is new, referred by Ayesha Khan. She rated her first visit 5/5. Customers who book a second visit within 30 days become regulars 3× more often, so ask her to rebook now.`,
+    6:`Noor visited 5 times, then stopped 7 months ago. She has not opted in to marketing messages, so she can only be reached by a win-back campaign after she re-consents, or by a phone call.`,
+    10:`Mehwish is your most valuable customer (Rs 241k) and your top referrer (5 customers). She is in the chair now with Sana. Mention the new bond-repair treatment; she likes early access to new services.`
+  };
+  if (custom[c.id]) return custom[c.id];
+  const s = status(c);
+  const base = `${first(c)} visits about every ${c.interval} days, usually for ${c.service.toLowerCase()} with ${c.staff}, spending ${fmt(avg(c))} per visit on average.`;
+  const tail = {Active:' Visits are on schedule. No action needed.', Due:' A return is due now, so a reminder this week should keep the pattern.', Overdue:' The visit is overdue, so reach out personally.', 'At Risk':' This customer is drifting away and needs a direct follow-up.', Lost:' They have likely moved to a competitor. Try a win-back offer.', New:' It is their first visit, so ask for feedback and a rebooking.'}[s];
+  return base + tail;
+}
+
+/* ---------- state ---------- */
+const S = {
+  page:'dashboard', q:'', statusF:'All', tierF:'All', actF:'All',
+  done:{}, events:{}, arrivals:[
+    {time:'10:32', cid:10, source:'Face ID', conf:98},
+    {time:'10:05', cid:14, source:'Face ID', conf:96},
+    {time:'09:47', cid:null, source:'Unregistered visitor', note:'Staff check-in, no face data stored'},
+    {time:'09:28', cid:2, source:'Face ID', conf:97}
+  ],
+  visitsToday:14, newToday:2, recovered:214500, recoveredSession:0,
+  pending:[], cam:{mode:'idle'}, simI:0, clock:[10,45],
+  appts:[
+    {time:'09:30', cid:2, svc:'Keratin treatment', staff:'Sana', st:'Completed'},
+    {time:'10:00', cid:14, svc:'Haircut + beard trim', staff:'Imran', st:'Completed'},
+    {time:'10:30', cid:10, svc:'Colour + treatment', staff:'Sana', st:'In service'},
+    {time:'11:30', cid:7, svc:'Haircut + beard trim', staff:'Imran', st:'Booked'},
+    {time:'13:00', cid:5, svc:'Blow-dry', staff:'Sana', st:'Booked'},
+    {time:'14:00', cid:12, svc:'Gel manicure refill', staff:'Maria', st:'Booked'},
+    {time:'16:30', cid:8, svc:'Haircut', staff:'Imran', st:'Booked'}
+  ],
+  campaigns:[
+    {name:'Monsoon hair rescue', seg:'Overdue · hair services', st:'Scheduled', when:'2 Oct 2026, 11:00', sent:0, read:0, replied:0, booked:0, rev:0, lift:null, reach:88},
+    {name:'Birthday month treat', seg:'Birthdays this month', st:'Running', when:'Automation', sent:46, read:41, replied:12, booked:15, rev:61200, lift:9.4},
+    {name:'Win-back: 20% off your next colour', seg:'Lost · colour clients', st:'Completed', when:'1–14 Sep 2026', sent:142, read:118, replied:23, booked:19, rev:96500, lift:11.2},
+    {name:'Eid ul-Adha glow package', seg:'VIP + High value', st:'Completed', when:'12–26 May 2026', sent:318, read:291, replied:64, booked:71, rev:412000, lift:14.8}
+  ],
+  templates:[
+    {id:'confirm', name:'Appointment confirmation', trig:'When a booking is created', cat:'Utility', on:true, sent:612, conv:'—'},
+    {id:'remind', name:'Appointment reminder', trig:'24 hours before the booking', cat:'Utility', on:true, sent:598, conv:'4.1% no-show'},
+    {id:'noshow', name:'No-show follow-up', trig:'When a booking is marked no-show', cat:'Utility', on:true, sent:17, conv:'11 rebooked'},
+    {id:'feedback', name:'Feedback request', trig:'2 hours after the visit is billed', cat:'Utility', on:true, sent:703, conv:'59% replied'},
+    {id:'review', name:'Google review request', trig:'1 day after every visit (max once per 90 days)', cat:'Marketing', on:true, sent:312, conv:'58 new reviews'},
+    {id:'rebook', name:'Rebooking reminder', trig:'When a customer becomes Due', cat:'Marketing', on:true, sent:241, conv:'34% booked'},
+    {id:'birthday', name:'Birthday wishes + offer', trig:'On the birthday, 9:00 am', cat:'Marketing', on:true, sent:46, conv:'33% booked'},
+    {id:'winback', name:'Win-back offer', trig:'When a customer becomes Lost', cat:'Marketing', on:false, sent:0, conv:'—'}
+  ],
+  tplSel:'rebook', tplLang:'en',
+  settings:{high:90, low:75, retention:'12', footage:false, cap:'7', quietFrom:'21:00', quietTo:'09:00'},
+  audit:[
+    {t:'Today 10:32', who:'System', what:'Face match auto-confirmed', target:'Mehwish Iqbal (98%)'},
+    {t:'Today 09:47', who:'Rida Aslam', what:'Unregistered visitor checked in by phone lookup', target:'No face data stored'},
+    {t:'Yesterday 18:12', who:'Rida Aslam', what:'Consent recorded: WhatsApp marketing', target:'Amna Yousaf'},
+    {t:'Yesterday 17:40', who:'Nadia Karim (Owner)', what:'Exported customer data on request', target:'Customer #0891'},
+    {t:'28 Sep 11:05', who:'System', what:'Face template deleted after consent withdrawal', target:'Customer #0412'},
+    {t:'27 Sep 09:00', who:'System', what:'Retention job: 3 face templates deleted after 12 months inactive', target:'3 customers'}
+  ]
+};
+const nextId = () => Math.max(...C.map(c => c.id)) + 1;
+const clock = () => { const [h,m] = S.clock; const step = 3 + (S.simI*5)%6; let mm = m + step, hh = h; if (mm >= 60){ hh++; mm -= 60; } S.clock = [hh,mm]; return String(hh).padStart(2,'0') + ':' + String(mm).padStart(2,'0'); };
+const addEvent = (cid, e) => { (S.events[cid] ||= []).unshift({d:0, ...e}); };
+
+/* ---------- messages ---------- */
+function msgText(tpl, c){
+  const f = first(c), link = `glow.studio/b/${c.id}k`;
+  const v = s => `<span class="var">${esc(s)}</span>`;
+  return {
+    rebook:`Hi ${v(f)}, it's been ${v(c.last+' days')} since your last ${v(c.service)} at Glow Studio. ${v(c.staff)} has openings this Thursday and Saturday. Book your slot: ${v(link)}<br><br><span class="faint">Reply STOP to unsubscribe</span>`,
+    followup:`Hi ${v(f)}, we've missed you at Glow Studio! ${v(c.staff)} has your usual ${v(c.service)} details on file. Shall we hold a slot for you this week? Reply YES and we'll call you.<br><br><span class="faint">Reply STOP to unsubscribe</span>`,
+    offer:`Hi ${v(f)}, it's been a while! Here's ${v('15% off')} your next ${v(c.service)}, valid until ${v('15 Oct')}. Book here: ${v(link)}<br><br><span class="faint">Reply STOP to unsubscribe</span>`,
+    feedback:`Thanks for visiting Glow Studio today, ${v(f)}! How was your ${v(c.service)} with ${v(c.staff)}? Tap a score from 1 to 5.<span class="btnrow">Rate your visit</span>`,
+    winback:`Hi ${v(f)}, we'd love to see you back at Glow Studio. Enjoy ${v('20% off')} any service until ${v('31 Oct')}. Book: ${v(link)}<br><br><span class="faint">Reply STOP to unsubscribe</span>`,
+    noshow:`Hi ${v(f)}, we missed you at your ${v(c.service)} appointment today. Would you like to pick a new time? ${v(link)}`
+  }[tpl];
+}
+const SAMPLE = {...C[0]};
+const URDU = {
+  rebook:'السلام علیکم عائشہ! گلو اسٹوڈیو میں آپ کے پچھلے ہیئر کلر کو ۴۱ دن ہو گئے ہیں۔ ثنا اس جمعرات اور ہفتے کو دستیاب ہیں۔ بکنگ کے لیے: glow.studio/b/1k',
+  remind:'السلام علیکم عائشہ! یاد دہانی: کل صبح ۱۱ بجے ثنا کے ساتھ آپ کی اپائنٹمنٹ ہے۔ تبدیلی کے لیے اس پیغام کا جواب دیں۔',
+  feedback:'آج گلو اسٹوڈیو آنے کا شکریہ عائشہ! آپ کا تجربہ کیسا رہا؟ ۱ سے ۵ تک ریٹنگ دیں۔',
+  noshow:'عائشہ، آج ہم نے آپ کا انتظار کیا! کیا آپ نیا وقت لینا چاہیں گی؟ یہاں سے دوبارہ بک کریں: glow.studio/b/1k'
+};
+function tplPreview(id){
+  const c = SAMPLE, v = s => `<span class="var">${esc(s)}</span>`;
+  return {
+    confirm:`Hi ${v('Ayesha')}, your ${v('Hair colour + blow-dry')} with ${v('Sana')} is booked for ${v('Sat 3 Oct, 11:00 am')}. See you at Glow Studio, MM Alam Road.`,
+    remind:`Reminder: ${v('Ayesha')}, your ${v('Hair colour + blow-dry')} is tomorrow at ${v('11:00 am')} with ${v('Sana')}. Reply C to confirm or R to reschedule.`,
+    noshow:msgText('noshow', c),
+    feedback:msgText('feedback', c),
+    review:`Thank you for choosing Glow Studio, ${v('Ayesha')}! If you have a minute, a Google review helps other clients find us.<span class="btnrow">Write a review</span>`,
+    rebook:msgText('rebook', c),
+    birthday:`Happy birthday, ${v('Ayesha')}! 🎂 Enjoy a ${v('free hair spa add-on')} with any service this month, on us.<br><br><span class="faint">Reply STOP to unsubscribe</span>`,
+    winback:msgText('winback', {...c, name:'Noor Fatima', id:6})
+  }[id];
+}
+const phone = (bubbles, name='Ayesha Khan') => `<div class="phone"><div class="wa-head"><div class="avatar">GS</div><div><b>Glow Studio</b><span>Business account · to ${esc(name)}</span></div></div><div class="wa-body"><span class="wa-day">Today</span>${bubbles}</div></div>`;
+
+/* ---------- nav ---------- */
+const NAV = [
+  ['dashboard','Dashboard','grid'], ['checkin','Live check-in','scan'], ['customers','Customers','users'],
+  ['actions','Actions','bolt'], ['appointments','Appointments','cal'], ['campaigns','Campaigns & offers','mega'],
+  ['automations','WhatsApp','chat'], ['feedback','Feedback & referrals','star'], ['privacy','Privacy & cameras','shield'],
+  ['_later'], ['branches','Branches','branch',true], ['insights','Business insights','trend',true]
+];
+const openActions = () => C.filter(c => action(c) && !S.done[c.id]);
+function renderNav(){
+  const cur = S.page.startsWith('customer-') ? 'customers' : S.page;
+  $('#nav').innerHTML = NAV.map(n => n[0] === '_later' ? '<div class="nav-label eyebrow">Later phases</div>' :
+    `<a href="#${n[0]}" class="${cur===n[0]?'on':''}" ${cur===n[0]?'aria-current="page"':''}>${ic(n[2],18)}<span class="t">${n[1]}</span>${n[0]==='actions'?`<span class="count">${openActions().length}</span>`:''}${n[3]?'<span class="later">Phase 3</span>':''}</a>`).join('');
+}
+
+/* ---------- pages ---------- */
+const PAGES = {};
+const TITLES = {
+  dashboard:['Good morning, Rida','Wednesday, 30 September 2026 · Glow Studio, Gulberg'],
+  checkin:['Live check-in','Face ID matches only customers who opted in. Everyone else is checked in by staff.'],
+  customers:['Customers','Profiles, visit history and status for every customer'],
+  actions:['Actions','Who needs attention today, why, and what to do'],
+  appointments:['Appointments','Today’s bookings, check-ins and no-show recovery'],
+  campaigns:['Campaigns & offers','Segments, offers and the revenue they bring back'],
+  automations:['WhatsApp automations','Meta-approved templates that send themselves'],
+  feedback:['Feedback & referrals','What customers say, and who brings in new ones'],
+  privacy:['Privacy & cameras','Consent, biometric data controls and audit log'],
+  branches:['Branches','One customer profile across every location'],
+  insights:['Business insights','Trends in retention, services and customer value']
+};
+
+PAGES.dashboard = () => {
+  const acts = openActions().sort((a,b) => risk(b) - risk(a));
+  const atRisk = acts.reduce((s,c) => s + risk(c), 0);
+  const returning = S.visitsToday - S.newToday;
+  const weeks = [['Aug 10',38],['Aug 17',52],['Aug 24',41],['Aug 31',66],['Sep 7',58],['Sep 14',74],['Sep 21',69],['This week',13.5 + S.recoveredSession/1000]];
+  const H = [['Active',691],['New',74],['Due',118],['Overdue',96],['At Risk',58],['Lost',211]];
+  return `
+  <section class="kpis">
+    <div class="kpi"><span class="l">Visits today</span><span class="v">${S.visitsToday}</span><span class="d">vs 12 last Wednesday</span></div>
+    <div class="kpi"><span class="l">New customers</span><span class="v">${S.newToday}</span><span class="d">1 came from a referral</span></div>
+    <div class="kpi"><span class="l">Returning</span><span class="v">${returning}</span><span class="d">${Math.round(returning/S.visitsToday*100)}% of today’s visits</span></div>
+    <div class="kpi"><span class="l">Need attention</span><span class="v">${acts.length}</span><span class="d">customers on today’s list</span></div>
+    <div class="kpi"><span class="l">Revenue at risk</span><span class="v">${fmtK(atRisk)}</span><span class="d">per year, from today’s list</span></div>
+    <div class="kpi hero"><span class="l">Recovered this month</span><span class="v">${fmtK(S.recovered + S.recoveredSession)}</span><span class="d">from customers who came back</span></div>
+  </section>
+  <div class="grid-2">
+    <section class="card">
+      <div class="card-h"><h2>Top actions for today</h2><div class="right"><a class="link" href="#actions">See all ${acts.length}</a></div></div>
+      ${acts.slice(0,5).map(c => actionRow(c,false)).join('') || '<div class="empty">All caught up.</div>'}
+    </section>
+    <section class="card">
+      <div class="card-h"><h2>Arrivals today</h2><div class="right"><span class="pill" style="--c:var(--s-active)">2 cameras online</span></div></div>
+      <div class="feed">${S.arrivals.slice(0,7).map(feedRow).join('')}</div>
+      <div class="note" style="margin-top:12px">Press <b>Simulate arrival</b> at the top to watch a customer walk in.</div>
+    </section>
+  </div>
+  <div class="grid-2 even">
+    <section class="card">
+      <div class="card-h"><h2>Revenue recovered by week</h2><div class="right faint small">Visits from customers who were Due, Overdue, At Risk or Lost</div></div>
+      <div class="bars">${barChart(weeks)}</div>
+    </section>
+    <section class="card">
+      <div class="card-h"><h2>Customer health</h2><div class="right faint small">All 1,248 customers</div></div>
+      <div class="health">${H.map(([s,n]) => `<div style="--c:${STATUS[s].c};flex:${n}" title="${s}: ${n}"></div>`).join('')}</div>
+      <div class="legend">${H.map(([s,n]) => `<div><span><i style="--c:${STATUS[s].c}"></i>${s}</span><b>${n.toLocaleString('en-US')}</b></div>`).join('')}</div>
+      <div class="divider" style="margin:16px 0 12px"></div>
+      <div class="row small"><span class="tier vip">★ VIP</span><span class="muted">124 customers bring in 38% of revenue. 17 of them are Overdue or At Risk.</span></div>
+    </section>
+  </div>`;
+};
+function barChart(data){
+  const W = 560, Hh = 220, L = 44, R = 12, T = 16, B = 34, max = 100;
+  const bw = (W - L - R) / data.length;
+  const y = v => T + (Hh - T - B) * (1 - v / max);
+  const ticks = [0,25,50,75,100];
+  return `<svg viewBox="0 0 ${W} ${Hh}" role="img" aria-label="Revenue recovered per week, in thousands of rupees">
+    ${ticks.map(t => `<line x1="${L}" x2="${W-R}" y1="${y(t)}" y2="${y(t)}" stroke="var(--line)"/><text x="${L-8}" y="${y(t)+4}" text-anchor="end" font-size="11" fill="var(--ink-3)">${t}k</text>`).join('')}
+    ${data.map(([l,v],i) => { const last = i === data.length-1; const x = L + i*bw + bw*.18, w = bw*.64;
+      return `<rect x="${x}" y="${y(v)}" width="${w}" height="${y(0)-y(v)}" rx="4" fill="${last?'var(--accent)':'color-mix(in srgb, var(--accent) 35%, var(--surface-2))'}"/>
+      <text x="${x+w/2}" y="${y(v)-6}" text-anchor="middle" font-size="11" font-weight="${last?700:500}" fill="var(--ink-2)">${v.toFixed(v%1?1:0)}k</text>
+      <text x="${x+w/2}" y="${Hh-12}" text-anchor="middle" font-size="11" fill="${last?'var(--ink)':'var(--ink-3)'}" font-weight="${last?600:400}">${l}</text>`; }).join('')}
+  </svg>`;
+}
+function feedRow(a){
+  const c = a.cid ? byId(a.cid) : null;
+  if (!c) return `<div class="feed-i ${a.fresh?'fresh':''}"><time>${a.time}</time><div class="who"><div class="avatar" style="--h:#85918B">?</div><div><b>${a.source}</b><span>${a.note||''}</span></div></div><span></span></div>`;
+  return `<div class="feed-i ${a.fresh?'fresh':''}"><time>${a.time}</time><a class="who" href="#customer-${c.id}" style="text-decoration:none;color:inherit">${av(c)}<div style="min-width:0"><b>${esc(c.name)}</b><span>${a.source}${a.conf?` · ${a.conf}% match`:''}${a.prev && a.prev!=='Active' ? ` · was ${a.prev}`:''}</span></div></a><span>${c.tier==='VIP'?tier('VIP'):''}</span></div>`;
+}
+function actionRow(c, full=true){
+  const a = action(c), s = status(c), val = risk(c);
+  const btn = a.kind === 'msg' ? `<button class="btn sm primary" data-act="msg" data-id="${c.id}" data-tpl="${a.tpl}">${ic('send',14)}Send</button>` :
+              a.kind === 'call' ? `<button class="btn sm primary" data-act="call" data-id="${c.id}">${ic('phone',14)}Log call</button>` :
+              `<button class="btn sm primary" data-act="addcamp" data-id="${c.id}">${ic('mega',14)}Add</button>`;
+  return `<div class="act ${full?'full':''}">${full?`<div class="stripe" style="--c:${STATUS[s].c}"></div>`:''}${av(c)}
+    <div style="min-width:0"><div class="row" style="gap:8px"><a class="link" style="color:var(--ink)" href="#customer-${c.id}">${esc(c.name)}</a>${pill(s)}${c.tier!=='Standard'?tier(c.tier):''}</div>
+      <div class="why">${esc(reason(c))}</div>
+      <div class="todo">${ic('arrow',15)}${esc(a.label)}</div></div>
+    <div class="val">${val?`<b>${fmtK(val)}</b><span class="faint small">at risk / year</span>`:`<span class="faint small">New customer</span>`}
+      <div class="btns">${btn}${full?`<button class="btn sm ghost" data-act="skip" data-id="${c.id}">Skip</button>`:''}</div></div>
+  </div>`;
+}
+
+PAGES.checkin = () => {
+  const cam = S.cam;
+  let panel = '';
+  if (cam.mode === 'idle') panel = `<div class="empty">No one at the entrance right now.<br><button class="btn primary" style="margin-top:12px" data-act="simulate">${ic('scan')}Simulate arrival</button></div>`;
+  else {
+    const c = cam.cid ? byId(cam.cid) : null;
+    if (cam.mode === 'match') panel = `<div class="stack"><div class="row">${av(c,'lg')}<div><h2 style="font-size:20px">${esc(c.name)}</h2><div class="row" style="gap:6px;margin-top:4px">${pill(status(c))}${tier(c.tier)}</div></div></div>
+      <div class="check-list"><div class="ok">${ic('check')}<span>Matched at ${cam.conf}% (auto-confirm at ${S.settings.high}%+). Visit recorded at ${cam.time}.</span></div>
+      ${cam.prev && cam.prev !== 'Active' ? `<div class="ok">${ic('check')}<span>Was <b>${cam.prev}</b>. This visit counts as recovered revenue.</span></div>`:''}
+      <div>${ic('user')}<span>Usual: ${esc(c.service)} with ${esc(c.staff)}</span></div></div>
+      <div class="note">${esc(insight(c))}</div>
+      <div class="row"><a class="btn" href="#customer-${c.id}">Open profile</a></div></div>`;
+    if (cam.mode === 'confirm') panel = `<div class="stack"><div class="row">${av(c,'lg')}<div><span class="eyebrow">Possible match · ${cam.conf}%</span><h2 style="font-size:20px">${esc(c.name)}?</h2><span class="muted small">${esc(c.phone)} · last visit ${ago(c.last).toLowerCase()}</span></div></div>
+      <div class="note">Confidence is between ${S.settings.low}% and ${S.settings.high}%, so staff confirm before anything is recorded. Only the name is shown until confirmed.</div>
+      <div class="row"><button class="btn primary" data-act="confirm-yes">${ic('check')}Yes, it’s ${esc(first(c))}</button><button class="btn" data-act="confirm-no">Not her</button></div></div>`;
+    if (cam.mode === 'unknown') panel = `<div class="stack"><div class="row"><div class="avatar lg" style="--h:#85918B">?</div><div><span class="eyebrow">No match</span><h2 style="font-size:20px">Unrecognised visitor</h2><span class="muted small">Face was not stored. Nothing is kept without consent.</span></div></div>
+      <div class="row"><button class="btn primary" data-act="register">${ic('plus')}Register new customer</button><button class="btn" data-act="lookup">${ic('search')}Find by phone</button><button class="btn ghost" data-act="dismiss-unknown">Just browsing</button></div></div>`;
+  }
+  return `
+  <div class="grid-2">
+    <div class="stack">
+      <div class="cams">
+        <div class="cam">${camSvg(cam, true)}<div class="cam-meta"><span class="rec"></span>ENTRANCE · CAM 01 · ${S.clock.map(n=>String(n).padStart(2,'0')).join(':')}</div><div class="cam-state">${cam.mode==='idle'?'Watching':'Face detected'}</div></div>
+        <div class="cam cam-small">${camSvg({mode:'idle'}, false)}<div class="cam-meta"><span class="rec"></span>RECEPTION · CAM 02</div><div class="cam-state">Low light</div></div>
+      </div>
+      <section class="card">
+        <div class="card-h"><h2>Check-in log</h2><div class="right faint small">${S.visitsToday} visits today</div></div>
+        <div class="feed">${S.arrivals.map(feedRow).join('')}</div>
+      </section>
+    </div>
+    <div class="stack">
+      <section class="card">${panel}</section>
+      <section class="card">
+        <div class="card-h"><h2>Waiting for staff</h2></div>
+        ${S.pending.length ? S.pending.map((p,i) => `<div class="feed-i"><time>${p.time}</time><div><b>${p.type==='confirm'?`Confirm: ${esc(byId(p.cid).name)} (${p.conf}%)`:'Unrecognised visitor'}</b><div class="src">${p.type==='confirm'?'Match below auto-confirm threshold':'Offer registration or phone lookup'}</div></div><button class="btn sm" data-act="open-pending" data-i="${i}">Review</button></div>`).join('') : '<div class="empty" style="padding:10px">Nothing waiting.</div>'}
+      </section>
+      <section class="card">
+        <div class="card-h"><h2>How matching works</h2></div>
+        <div class="check-list">
+          <div>${ic('check')}<span><b>${S.settings.high}%+</b> match: visit recorded automatically.</span></div>
+          <div>${ic('user')}<span><b>${S.settings.low}–${S.settings.high}%</b>: staff confirm at the front desk.</span></div>
+          <div>${ic('lock')}<span><b>Below ${S.settings.low}%</b> or not opted in: treated as unknown, face discarded.</span></div>
+        </div>
+      </section>
+    </div>
+  </div>`;
+};
+function camSvg(cam, main){
+  const w = 400, h = 240;
+  const person = cam.mode !== 'idle';
+  const col = cam.mode === 'match' ? '#3DC19F' : cam.mode === 'confirm' ? '#E3B23C' : '#A0AFA8';
+  const c = cam.cid ? byId(cam.cid) : null;
+  const label = cam.mode === 'match' ? `${c.name} · ${cam.conf}%` : cam.mode === 'confirm' ? `Possible: ${first(c)} · ${cam.conf}%` : 'Unknown · not stored';
+  const lw = label.length * 6.4 + 16;
+  const br = (x,y,dx,dy) => `<path d="M${x} ${y+dy*14}V${y}H${x+dx*14}" fill="none" stroke="${col}" stroke-width="3"/>`;
+  return `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="${main?'Entrance camera':'Reception camera'}">
+    <rect width="${w}" height="${h}" fill="var(--cam)"/>
+    <path d="M0 190 L400 175" stroke="var(--cam-line)" stroke-width="2"/>
+    <rect x="${main?110:250}" y="30" width="${main?180:110}" height="${main?160:150}" fill="none" stroke="var(--cam-line)" stroke-width="6"/>
+    ${main?'':'<rect x="30" y="120" width="170" height="44" rx="4" fill="var(--cam-line)"/><rect x="60" y="95" width="40" height="28" rx="3" fill="var(--cam-line)"/>'}
+    ${person?`<g><circle cx="200" cy="100" r="30" fill="var(--cam-body)"/><path d="M128 240 C130 168 270 168 272 240 Z" fill="var(--cam-body)"/>
+      ${br(162,58,1,1)}${br(238,58,-1,1)}${br(162,146,1,-1)}${br(238,146,-1,-1)}
+      <rect x="${200-lw/2}" y="30" width="${lw}" height="20" rx="4" fill="${col}"/><text x="200" y="44" text-anchor="middle" font-size="11.5" font-weight="700" fill="#0C1311" font-family="Onest, sans-serif">${esc(label)}</text></g>`:''}
+  </svg>`;
+}
+
+PAGES.customers = () => {
+  const counts = {All:C.length}; C.forEach(c => { const s = status(c); counts[s] = (counts[s]||0)+1; });
+  return `
+  <section class="card">
+    <div class="card-h">
+      <div style="position:relative;flex:1;min-width:200px;max-width:360px"><span style="position:absolute;left:10px;top:9px;color:var(--ink-3)">${ic('search')}</span><input id="q" class="field" style="padding-left:34px" placeholder="Search by name or phone" value="${esc(S.q)}"></div>
+      <select id="tierF" class="field" style="width:auto">${['All','VIP','High value','Standard'].map(t => `<option ${S.tierF===t?'selected':''}>${t}</option>`).join('')}</select>
+      <div class="right"><button class="btn primary" data-act="register">${ic('plus')}Add customer</button></div>
+    </div>
+    <div class="chips" style="margin-bottom:10px">${['All','New','Active','Due','Overdue','At Risk','Lost'].map(s => `<button class="chip ${S.statusF===s?'on':''}" data-act="statusF" data-s="${s}">${s}<span class="n">${counts[s]||0}</span></button>`).join('')}</div>
+    <div class="table-wrap"><table><thead><tr><th>Customer</th><th>Status</th><th>Tier</th><th class="r">Visits</th><th>Last visit</th><th>Usual service</th><th class="r">Total spend</th><th>Face ID</th></tr></thead><tbody id="ctable">${custRows()}</tbody></table></div>
+    <div class="faint small" style="margin-top:12px">Showing a sample of ${C.length} of 1,248 customers.</div>
+  </section>`;
+};
+function custRows(){
+  const q = S.q.toLowerCase().trim();
+  const rows = C.filter(c => (S.statusF === 'All' || status(c) === S.statusF) && (S.tierF === 'All' || c.tier === S.tierF) && (!q || c.name.toLowerCase().includes(q) || c.phone.replace(/\s/g,'').includes(q.replace(/\s/g,''))))
+    .sort((a,b) => b.spend - a.spend);
+  if (!rows.length) return `<tr><td colspan="8" class="empty">No customers match these filters.</td></tr>`;
+  return rows.map(c => `<tr class="click" tabindex="0" data-act="open-customer" data-id="${c.id}"><td><div class="who">${av(c)}<div><b>${esc(c.name)}</b><span>${esc(c.phone)}</span></div></div></td><td>${pill(status(c))}</td><td>${tier(c.tier)}</td><td class="r num">${c.visits}</td><td class="num">${ago(c.last)}</td><td>${esc(c.service)}</td><td class="r num">${fmt(c.spend)}</td><td>${c.face?`<span class="ok small">${ic('check',14)} Opted in</span>`:'<span class="faint small">Phone only</span>'}</td></tr>`).join('');
+}
+
+function timeline(c){
+  const t = [];
+  const base = c.prevLast !== undefined ? c.prevLast : c.last;
+  const hist = c.prevLast !== undefined ? c.visits - 1 : c.visits;
+  const n = Math.min(hist, 6);
+  for (let i = 0; i < n; i++){
+    const d = i === 0 ? base : base + i*c.interval + ((i*7 + c.id*3) % 5) - 2;
+    const amt = avg(c) * (1 + ((i*13 + c.id) % 7 - 3) / 40);
+    t.push({d, type:'visit', title: d === 0 ? 'Checked in today' : 'Visit', text:`${(i % 3 === 2 && c.alt) ? c.alt : c.service} with ${c.staff} · ${fmt(amt)}`, meta: c.face ? `Face ID · ${95 + (i+c.id)%4}% match` : 'Phone check-in'});
+  }
+  if (c.fb && base > 0) t.push({d:base, type:'feedback', title:`Rated the visit ${c.fb}/5`, text: c.fbNote ? `“${c.fbNote}”` : 'No comment', ord:1});
+  if (base > c.interval && base <= 180) t.push({d:base - c.interval, type:'message', title:'Rebooking reminder sent', text:'WhatsApp template · Delivered · Read · No reply'});
+  if (base > 180) t.push({d:base - c.interval*2, type:'message', title:'Rebooking reminder sent', text:'WhatsApp template · Delivered · Not read'});
+  const firstD = base + (hist-1)*c.interval;
+  if (c.refBy) t.push({d:firstD, type:'referral', title:`Referred by ${byId(c.refBy).name}`, text:'Referral code AYESHA-24 used at registration', ord:2});
+  t.push({d:firstD, type:'consent', title: c.face ? 'Consented to Face ID and WhatsApp messages' : 'Consented to WhatsApp messages (declined Face ID)', text:'Recorded by Rida Aslam at the front desk · policy v1.2', ord:3});
+  (S.events[c.id] || []).forEach(e => t.push({...e, ord:-1}));
+  t.sort((a,b) => a.d - b.d || (a.ord||0) - (b.ord||0));
+  const col = {visit:'var(--accent)', feedback:'var(--s-due)', message:'var(--s-new)', consent:'var(--s-lost)', referral:'var(--gold)', call:'var(--s-overdue)'};
+  const icn = {visit:'check', feedback:'star', message:'msg', consent:'lock', referral:'gift', call:'phone'};
+  return `<div class="tl">${t.map(e => `<div class="tl-i"><div class="tl-dot" style="--c:${col[e.type]}">${ic(icn[e.type],14)}</div><div><div class="row" style="gap:8px"><b>${esc(e.title)}</b><span class="when">${e.d===0?(e.time?'Today '+e.time:'Today'):dateAgo(e.d)}</span></div><div class="txt">${esc(e.text)}${e.meta?` · <span class="faint">${esc(e.meta)}</span>`:''}</div></div></div>`).join('')}${hist > 6 ? `<div class="faint small" style="padding-left:40px">+ ${hist-6} earlier visits</div>`:''}</div>`;
+}
+
+function profile(id){
+  const c = byId(id);
+  if (!c) return `<div class="card empty">This customer was deleted. <a class="link" href="#customers">Back to customers</a></div>`;
+  const s = status(c), a = action(c);
+  return `
+  <div><a class="btn ghost sm" href="#customers">${ic('back',14)}All customers</a></div>
+  <div class="profile">
+    <div class="stack" style="gap:20px">
+      <section class="card stack" style="gap:16px">
+        <div class="p-head">${av(c,'lg')}
+          <div style="flex:1;min-width:200px"><h2>${esc(c.name)}</h2>
+            <div class="row" style="gap:6px;margin-top:6px">${pill(s)}${tier(c.tier)}<span class="faint small">${esc(c.phone)} · ${c.lang}</span></div></div>
+          <div class="row"><button class="btn primary" data-act="msg" data-id="${c.id}" data-tpl="${a && a.tpl ? a.tpl : 'rebook'}">${ic('send')}Message</button><button class="btn" data-act="book" data-id="${c.id}">${ic('cal')}Book</button></div>
+        </div>
+        <div class="stats">
+          <div><b>${c.visits}</b><span>Visits</span></div>
+          <div><b>${fmtK(c.spend)}</b><span>Total spend</span></div>
+          <div><b>${fmt(avg(c))}</b><span>Avg. ticket</span></div>
+          <div><b>${c.interval} days</b><span>Usual gap</span></div>
+          <div><b>${ago(c.last)}</b><span>Last visit</span></div>
+        </div>
+      </section>
+      <section class="card insight"><span class="eyebrow">${ic('spark',14)}AI summary</span><p>${esc(insight(c))}</p></section>
+      ${a && !S.done[c.id] ? `<section class="card"><div class="card-h"><h2>Recommended next step</h2>${risk(c)?`<div class="right"><b class="num">${fmtK(risk(c))}</b><span class="faint small">at risk / year</span></div>`:''}</div>${actionRow(c,false)}</section>` : S.done[c.id] ? `<section class="card"><div class="row ok">${ic('check')}<b>${esc(S.done[c.id])}</b></div></section>` : ''}
+      <section class="card">
+        <div class="card-h"><h2>Details</h2></div>
+        <dl class="kv">
+          <dt>Usual service</dt><dd>${esc(c.service)} with ${esc(c.staff)}</dd>
+          <dt>Preferences</dt><dd>${esc(c.prefs || '—')}</dd>
+          <dt>Notes</dt><dd>${esc(c.notes || '—')}</dd>
+          <dt>Birthday</dt><dd>${esc(c.bday)}</dd>
+          <dt>Referrals</dt><dd>${c.refs ? `Brought ${c.refs} new customer${c.refs>1?'s':''} · ${fmt(c.refRev)} revenue` : 'None yet'}</dd>
+          <dt>Referred by</dt><dd>${c.refBy ? `<a class="link" href="#customer-${c.refBy}">${esc(byId(c.refBy).name)}</a>` : '—'}</dd>
+        </dl>
+      </section>
+      <section class="card">
+        <div class="card-h"><h2>Consent & data</h2></div>
+        <div class="stack" style="gap:10px">
+          <div class="row"><button class="switch ${c.face?'on':''}" data-act="toggle-face" data-id="${c.id}" aria-label="Face ID consent" aria-pressed="${c.face}"></button><div><b>Face ID check-in</b><div class="faint small">${c.face ? 'Opted in on '+dateAgo(c.last + (c.visits-1)*c.interval)+'. Turning off deletes the face template.' : 'Not opted in. No face data is stored.'}</div></div></div>
+          <div class="row"><button class="switch on" aria-label="WhatsApp service messages" aria-pressed="true" data-act="noop"></button><div><b>WhatsApp appointment messages</b><div class="faint small">Confirmations, reminders, feedback</div></div></div>
+          <div class="row"><button class="switch ${c.mkt?'on':''}" data-act="toggle-mkt" data-id="${c.id}" aria-label="WhatsApp marketing" aria-pressed="${c.mkt}"></button><div><b>WhatsApp offers and reminders</b><div class="faint small">${c.mkt ? 'Receives rebooking reminders and offers' : 'Will not receive marketing messages'}</div></div></div>
+          <div class="divider"></div>
+          <div class="row"><button class="btn sm" data-act="export" data-id="${c.id}">${ic('download',14)}Export data</button><button class="btn sm danger" data-act="delete" data-id="${c.id}">${ic('trash',14)}Delete customer</button></div>
+        </div>
+      </section>
+    </div>
+    <section class="card"><div class="card-h"><h2>Timeline</h2><div class="right faint small">Visits, messages, feedback and consent</div></div>${timeline(c)}</section>
+  </div>`;
+}
+
+PAGES.actions = () => {
+  const all = C.filter(c => action(c));
+  const open = all.filter(c => !S.done[c.id]);
+  const f = S.actF;
+  const list = open.filter(c => f === 'All' || status(c) === f).sort((a,b) => risk(b) - risk(a));
+  const tot = open.reduce((s,c) => s + risk(c), 0);
+  const doneL = all.filter(c => S.done[c.id]);
+  const counts = {}; open.forEach(c => { const s = status(c); counts[s] = (counts[s]||0)+1; });
+  return `
+  <div class="grid-3">
+    <div class="kpi"><span class="l">Open actions</span><span class="v">${open.length}</span><span class="d">sorted by revenue at risk</span></div>
+    <div class="kpi"><span class="l">Revenue at risk</span><span class="v">${fmtK(tot)}</span><span class="d">per year if these customers don’t return</span></div>
+    <div class="kpi"><span class="l">Done today</span><span class="v">${doneL.length}</span><span class="d">${doneL.length?'Nice work':'Start with the top one'}</span></div>
+  </div>
+  <section class="card">
+    <div class="card-h"><h2>Today’s list</h2><div class="right chips">${['All','Due','Overdue','At Risk','Lost','New'].map(s => `<button class="chip ${f===s?'on':''}" data-act="actF" data-s="${s}">${s}<span class="n">${s==='All'?open.length:(counts[s]||0)}</span></button>`).join('')}</div></div>
+    ${list.map(c => actionRow(c,true)).join('') || '<div class="empty">Nothing here. Everyone in this group has been handled.</div>'}
+  </section>
+  ${doneL.length ? `<section class="card"><div class="card-h"><h2>Completed today</h2></div>${doneL.map(c => `<div class="feed-i"><span class="ok">${ic('check')}</span><div class="who">${av(c)}<div><b>${esc(c.name)}</b><span>${esc(S.done[c.id])}</span></div></div><button class="btn sm ghost" data-act="undo" data-id="${c.id}">Undo</button></div>`).join('')}</section>` : ''}
+  <div class="note">Value at risk = average ticket × visits per year × chance of return (Due 80%, Overdue 60%, At Risk 35%, Lost 15%). These rates are replaced with the salon’s own numbers after 3 months.</div>`;
+};
+
+PAGES.appointments = () => {
+  const booked = S.appts.filter(a => a.st === 'Booked').length;
+  const stc = {Completed:'var(--s-active)', 'In service':'var(--s-new)', Booked:'var(--ink-3)', 'Checked in':'var(--accent)', 'No-show':'var(--s-risk)'};
+  return `
+  <div class="grid-3">
+    <div class="kpi"><span class="l">Booked today</span><span class="v">${S.appts.length}</span><span class="d">${booked} still to arrive</span></div>
+    <div class="kpi"><span class="l">No-show rate this month</span><span class="v">4.1%</span><span class="d">down from 7.8% before reminders</span></div>
+    <div class="kpi"><span class="l">No-shows recovered</span><span class="v">11 of 17</span><span class="d">rebooked after the follow-up message</span></div>
+  </div>
+  <section class="card">
+    <div class="card-h"><h2>Wednesday, 30 September</h2><div class="right"><button class="btn" data-act="book">${ic('plus')}New booking</button></div></div>
+    <div class="table-wrap"><table><thead><tr><th>Time</th><th>Customer</th><th>Service</th><th>Staff</th><th>Status</th><th></th></tr></thead><tbody>
+    ${S.appts.map((a,i) => { const c = byId(a.cid); return `<tr><td class="num"><b>${a.time}</b></td><td>${c?`<a class="who" style="text-decoration:none;color:inherit" href="#customer-${c.id}">${av(c)}<div><b>${esc(c.name)}</b><span>${pill(status(c))}</span></div></a>`:esc(a.name)}</td><td>${esc(a.svc)}</td><td>${a.staff}</td><td><span class="pill" style="--c:${stc[a.st]}">${a.st}</span></td>
+      <td class="r">${a.st==='Booked'?`<div class="row" style="justify-content:flex-end;flex-wrap:nowrap"><button class="btn sm" data-act="appt-in" data-i="${i}">Check in</button><button class="btn sm ghost" data-act="appt-noshow" data-i="${i}">Mark no-show</button></div>`:a.st==='No-show'?'<span class="small muted">Follow-up sent on WhatsApp</span>':''}</td></tr>`; }).join('')}
+    </tbody></table></div>
+  </section>
+  <div class="note">Every booking gets a confirmation and a reminder 24 hours before. When a booking is marked no-show, the customer gets a follow-up with a link to pick a new time.</div>`;
+};
+
+const SEGS = [
+  {id:'vip', name:'VIP', n:124, rate:.22, tk:9800},
+  {id:'hv', name:'High value', n:248, rate:.18, tk:6900},
+  {id:'due', name:'Due this week', n:118, rate:.3, tk:5200},
+  {id:'over', name:'Overdue', n:96, rate:.14, tk:5600},
+  {id:'risk', name:'At Risk', n:58, rate:.09, tk:6100},
+  {id:'lost', name:'Lost (6+ months)', n:211, rate:.06, tk:4300},
+  {id:'freq', name:'Frequent (12+ visits)', n:173, rate:.2, tk:6200},
+  {id:'bday', name:'Birthdays in October', n:61, rate:.33, tk:5400}
+];
+PAGES.campaigns = () => {
+  const done = S.campaigns.filter(c => c.sent);
+  const rev = done.reduce((s,c) => s + c.rev, 0), booked = done.reduce((s,c) => s + c.booked, 0);
+  const stc = {Scheduled:'var(--s-new)', Running:'var(--s-active)', Completed:'var(--ink-3)'};
+  return `
+  <div class="grid-3">
+    <div class="kpi hero"><span class="l">Revenue from campaigns (2026)</span><span class="v">${fmtK(rev)}</span><span class="d">visits within 14 days of a message</span></div>
+    <div class="kpi"><span class="l">Bookings from campaigns</span><span class="v">${booked}</span><span class="d">from ${done.reduce((s,c)=>s+c.sent,0)} messages sent</span></div>
+    <div class="kpi"><span class="l">Average lift vs. holdout</span><span class="v">+12.1 pts</span><span class="d">10% of each segment gets no message</span></div>
+  </div>
+  <div class="grid-2">
+    <section class="card">
+      <div class="card-h"><h2>Campaigns</h2><div class="right"><button class="btn primary" data-act="new-campaign">${ic('plus')}New campaign</button></div></div>
+      <div class="stack" style="gap:0">${S.campaigns.map(k => `
+        <div style="padding:14px 0;border-bottom:1px solid var(--line)">
+          <div class="row"><b style="font-size:15px">${esc(k.name)}</b><span class="pill" style="--c:${stc[k.st]}">${k.st}</span><span class="faint small" style="margin-left:auto">${esc(k.when)}</span></div>
+          <div class="muted small">${esc(k.seg)}${k.offer?' · '+esc(k.offer):''}</div>
+          ${k.sent ? `<div class="funnel"><div><b>${k.sent}</b><span>Sent</span></div><div><b>${Math.round(k.read/k.sent*100)}%</b><span>Read</span></div><div><b>${k.replied}</b><span>Replied</span></div><div><b>${k.booked}</b><span>Booked</span></div><div><b>${fmtK(k.rev)}</b><span>Revenue · +${k.lift} pts</span></div></div>` : `<div class="note" style="margin-top:10px">Will reach about ${k.reach} customers after opt-in and frequency checks.</div>`}
+        </div>`).join('')}</div>
+    </section>
+    <section class="card">
+      <div class="card-h"><h2>Segments</h2><div class="right faint small">Updated nightly</div></div>
+      ${SEGS.map(s => `<div class="feed-i" style="grid-template-columns:minmax(0,1fr) auto"><div><b>${s.name}</b><div class="meter" style="margin-top:6px"><div style="width:${Math.min(100,s.n/2.5)}%"></div></div></div><span class="num muted">${s.n}</span></div>`).join('')}
+      <div class="note" style="margin-top:12px">Segments are saved filters on status, tier, services, spend and last visit. Statuses work as built-in segments.</div>
+    </section>
+  </div>`;
+};
+
+PAGES.automations = () => {
+  const t = S.templates.find(x => x.id === S.tplSel);
+  const hasUrdu = !!URDU[t.id];
+  const body = S.tplLang === 'ur' ? (hasUrdu ? `<div class="bub urdu">${URDU[t.id]}<span class="t">11:02</span></div>` : `<div class="bub" style="font-style:italic">Urdu version waiting for Meta approval.</div>`) : `<div class="bub">${tplPreview(t.id)}<span class="t">11:02</span></div>`;
+  return `
+  <div class="grid-2">
+    <section class="card">
+      <div class="card-h"><h2>Templates</h2><div class="right faint small">This month</div></div>
+      <div class="table-wrap"><table><thead><tr><th></th><th>Message</th><th>Type</th><th class="r">Sent</th><th>Result</th></tr></thead><tbody>
+      ${S.templates.map(x => `<tr class="click ${x.id===S.tplSel?'sel':''}" data-act="tpl" data-id="${x.id}" style="${x.id===S.tplSel?'background:var(--accent-soft)':''}"><td><button class="switch ${x.on?'on':''}" data-act="tpl-toggle" data-id="${x.id}" aria-label="Turn ${esc(x.name)} on or off" aria-pressed="${x.on}"></button></td><td><b>${x.name}</b><div class="faint small">${x.trig}</div></td><td><span class="tier">${x.cat}</span></td><td class="r num">${x.sent}</td><td class="small">${x.conv}</td></tr>`).join('')}
+      </tbody></table></div>
+    </section>
+    <div class="stack" style="gap:20px">
+      <section class="card">
+        <div class="card-h"><h2>${t.name}</h2><div class="right chips"><button class="chip ${S.tplLang==='en'?'on':''}" data-act="lang" data-l="en">English</button><button class="chip ${S.tplLang==='ur'?'on':''}" data-act="lang" data-l="ur">اردو</button></div></div>
+        ${phone(body)}
+        <p class="small muted" style="margin:14px 0 0">Highlighted parts are filled in for each customer. AI picks the template and fills these parts from the customer’s history; the approved wording stays the same.</p>
+      </section>
+      <section class="card">
+        <div class="card-h"><h2>Sending rules</h2></div>
+        <div class="form-grid">
+          <div><label class="lbl" for="cap">Max offers and reminders</label><select id="cap" class="field" data-set="cap"><option value="7" ${S.settings.cap==='7'?'selected':''}>1 per customer every 7 days</option><option value="14" ${S.settings.cap==='14'?'selected':''}>1 every 14 days</option><option value="30" ${S.settings.cap==='30'?'selected':''}>1 every 30 days</option></select></div>
+          <div><label class="lbl">Quiet hours</label><div class="field" style="background:var(--surface-2)">No sends 9:00 pm – 9:00 am</div></div>
+        </div>
+        <div class="check-list" style="margin-top:12px"><div class="ok">${ic('check')}<span>Offers only go to customers who opted in (81%)</span></div><div class="ok">${ic('check')}<span>STOP replies unsubscribe instantly (9 this month)</span></div><div class="ok">${ic('check')}<span>Review requests go to every customer, not only happy ones</span></div></div>
+      </section>
+    </div>
+  </div>`;
+};
+
+PAGES.feedback = () => {
+  const dist = [[5,288],[4,78],[3,24],[2,13],[1,9]];
+  const recent = [[4,'Today'],[5,'Yesterday'],[7,'Yesterday'],[3,'2 days ago'],[16,'3 days ago'],[12,'4 days ago']];
+  const refs = C.filter(c => c.refs).sort((a,b) => b.refRev - a.refRev);
+  return `
+  <div class="grid-3">
+    <div class="kpi"><span class="l">Average rating (this quarter)</span><span class="v">4.6 / 5</span><span class="d">412 responses · 59% reply rate</span></div>
+    <div class="kpi"><span class="l">New Google reviews</span><span class="v">58</span><span class="d">from 312 requests · Google rating 4.7</span></div>
+    <div class="kpi"><span class="l">Customers from referrals</span><span class="v">84</span><span class="d">Rs 412k revenue so far</span></div>
+  </div>
+  <div class="grid-2">
+    <section class="card">
+      <div class="card-h"><h2>Recent feedback</h2></div>
+      ${recent.map(([id,when]) => { const c = byId(id); if (!c) return ''; const low = c.fb <= 2; return `<div class="feed-i" style="grid-template-columns:auto minmax(0,1fr) auto"><a href="#customer-${c.id}">${av(c)}</a><div style="min-width:0"><div class="row" style="gap:8px"><b>${esc(c.name)}</b><span class="${low?'bad':c.fb===3?'warn':'ok'}" style="font-weight:700">${'★'.repeat(c.fb)}<span class="faint">${'★'.repeat(5-c.fb)}</span></span><span class="faint small">${when}</span></div><div class="small muted" style="white-space:normal">${esc(c.fbNote || 'No comment')}</div></div>${low?`<button class="btn sm primary" data-act="call" data-id="${c.id}">Call</button>`:''}</div>`; }).join('')}
+    </section>
+    <div class="stack" style="gap:20px">
+      <section class="card">
+        <div class="card-h"><h2>Rating breakdown</h2></div>
+        ${dist.map(([s,n]) => `<div class="row" style="flex-wrap:nowrap;margin-bottom:8px"><span class="num" style="width:26px">${s}★</span><div class="meter" style="flex:1;--c:${s>=4?'var(--s-active)':s===3?'var(--s-due)':'var(--s-risk)'}"><div style="width:${n/288*100}%"></div></div><span class="num muted" style="width:34px;text-align:right">${n}</span></div>`).join('')}
+        <div class="note" style="margin-top:12px">Scores of 1 or 2 alert the manager and add a call to the action list. Google review requests go to everyone, as Google’s policy requires.</div>
+      </section>
+      <section class="card">
+        <div class="card-h"><h2>Top referrers</h2></div>
+        ${refs.map(c => `<div class="feed-i" style="grid-template-columns:minmax(0,1fr) auto auto"><a class="who" style="text-decoration:none;color:inherit" href="#customer-${c.id}">${av(c)}<div><b>${esc(c.name)}</b><span>${c.refs} new customer${c.refs>1?'s':''}</span></div></a><span class="num">${fmt(c.refRev)}</span><span></span></div>`).join('')}
+      </section>
+    </div>
+  </div>`;
+};
+
+PAGES.privacy = () => {
+  const st = S.settings;
+  return `
+  <div class="grid-3">
+    <div class="kpi"><span class="l">Opted in to Face ID</span><span class="v">64%</span><span class="d">798 of 1,248 customers</span></div>
+    <div class="kpi"><span class="l">WhatsApp offers opt-in</span><span class="v">81%</span><span class="d">1,011 customers</span></div>
+    <div class="kpi"><span class="l">Face images stored</span><span class="v">0</span><span class="d">Only encrypted templates, never photos</span></div>
+  </div>
+  <div class="grid-2">
+    <section class="card">
+      <div class="card-h"><h2>Biometric settings</h2></div>
+      <div class="stack" style="gap:16px">
+        <div><label class="lbl" for="high">Record the visit automatically at <b class="num" id="high-v">${st.high}%</b> match or higher</label><input id="high" type="range" min="80" max="99" value="${st.high}" data-set="high" style="width:100%;accent-color:var(--accent)"></div>
+        <div><label class="lbl" for="low">Ask staff to confirm from <b class="num" id="low-v">${st.low}%</b> (below this, the visitor is treated as unknown)</label><input id="low" type="range" min="60" max="89" value="${st.low}" data-set="low" style="width:100%;accent-color:var(--accent)"></div>
+        <div><label class="lbl" for="ret">Delete face templates after this long without a visit</label><select id="ret" class="field" data-set="retention">${['6','12','24','36'].map(m => `<option value="${m}" ${st.retention===m?'selected':''}>${m} months</option>`).join('')}</select></div>
+        <div class="row" style="flex-wrap:nowrap"><button class="switch ${st.footage?'on':''}" data-act="footage" aria-label="Store camera footage" aria-pressed="${st.footage}"></button><div><b>Store camera footage</b><div class="faint small">${st.footage?'On: clips kept for 7 days, then deleted.':'Off: video is processed live and never saved.'}</div></div></div>
+        <div class="row" style="flex-wrap:nowrap"><span class="switch on" aria-hidden="true" style="opacity:.6"></span><div><b>Discard faces of unregistered visitors</b><div class="faint small">Always on. Cannot be turned off.</div></div></div>
+      </div>
+    </section>
+    <div class="stack" style="gap:20px">
+      <section class="card">
+        <div class="card-h"><h2>Cameras</h2></div>
+        <div class="feed-i" style="grid-template-columns:auto minmax(0,1fr) auto"><span class="ok">${ic('cam',20)}</span><div><b>Entrance · CAM 01</b><div class="src">Hikvision DS-2CD, RTSP · 38 faces detected today</div></div><span class="pill" style="--c:var(--s-active)">Good</span></div>
+        <div class="feed-i" style="grid-template-columns:auto minmax(0,1fr) auto"><span class="warn">${ic('cam',20)}</span><div><b>Reception · CAM 02</b><div class="src">Dahua IPC, ONVIF · lighting too low after 5 pm</div></div><span class="pill" style="--c:var(--s-due)">Check light</span></div>
+        <div class="note" style="margin-top:10px">Matching runs on the small device in the salon. Only match results go to the cloud, never video.</div>
+      </section>
+      <section class="card">
+        <div class="card-h"><h2>Signage and consent text</h2></div>
+        <p class="small muted" style="margin:0 0 10px">Shown at the entrance and on the registration tablet.</p>
+        <div class="note" style="font-size:13px;color:var(--ink)">“Glow Studio uses face recognition to check in customers who have agreed to it. If you have not agreed, your face is not stored. You can check in with your phone number instead, and withdraw consent at any time.”</div>
+      </section>
+    </div>
+  </div>
+  <section class="card">
+    <div class="card-h"><h2>Audit log</h2><div class="right faint small">Every view, export, deletion and consent change</div></div>
+    <div class="table-wrap"><table><thead><tr><th>When</th><th>Who</th><th>What</th><th>Customer</th></tr></thead><tbody>${S.audit.map(a => `<tr><td class="num">${esc(a.t)}</td><td>${esc(a.who)}</td><td>${esc(a.what)}</td><td class="muted">${esc(a.target)}</td></tr>`).join('')}</tbody></table></div>
+  </section>`;
+};
+
+PAGES.branches = () => `
+  <section class="card later-card"><span class="eyebrow">Planned for Phase 3</span><h2 style="font-size:22px;margin-top:6px">One customer, every branch</h2>
+  <p class="muted">When Glow Studio opens a second location, customers keep a single profile. A visit to DHA shows up in the same timeline as visits to Gulberg, and Face ID works at both.</p>
+  <ul><li>Branch switcher and a combined owner dashboard</li><li>Compare retention, revenue and no-shows by branch</li><li>Staff see only their branch unless given access</li><li>The data model already stores a branch for every visit, so nothing needs migrating</li></ul></section>`;
+PAGES.insights = () => `
+  <section class="card later-card"><span class="eyebrow">Planned for Phase 3</span><h2 style="font-size:22px;margin-top:6px">Trends the owner should know about</h2>
+  <p class="muted">A weekly summary written in plain language, based on months of visit data. For example:</p>
+  <div class="note" style="color:var(--ink)">“Colour clients are returning 4 days later than in June. Keratin bookings grew 22% since the Eid campaign. Customers first served by Imran return 18% more often than average.”</div>
+  <ul><li>Retention and return-gap trends by service and staff member</li><li>Changes in customer value and churn risk</li><li>A churn prediction model once there is enough history</li></ul></section>`;
+
+/* ---------- render ---------- */
+function render(){
+  const p = S.page;
+  const isProfile = p.startsWith('customer-');
+  const key = isProfile ? 'customers' : p;
+  const [t, sub] = isProfile ? [byId(p.split('-')[1])?.name || 'Customer', 'Customer profile'] : (TITLES[key] || TITLES.dashboard);
+  $('#page-title').textContent = t;
+  $('#page-sub').textContent = sub;
+  $('#view').innerHTML = isProfile ? profile(p.split('-')[1]) : (PAGES[key] || PAGES.dashboard)();
+  renderNav();
+  document.title = 'Revisit Retention CRM';
+}
+function go(){
+  const h = location.hash.slice(1);
+  S.page = (h && (PAGES[h] || /^customer-\d+$/.test(h))) ? h : 'dashboard';
+  render();
+  window.scrollTo(0,0);
+}
+window.addEventListener('hashchange', go);
+
+/* ---------- toasts & modals ---------- */
+function toast({title, body='', tone='var(--accent)', cta=null, ms=6000}){
+  const el = document.createElement('div');
+  el.className = 'toast'; el.style.setProperty('--c', tone);
+  el.innerHTML = `<div style="min-width:0;flex:1"><b>${title}</b>${body?`<p>${body}</p>`:''}${cta?`<a class="btn sm" href="${cta.href}">${cta.label}</a>`:''}</div><button class="x" aria-label="Dismiss">${ic('x',16)}</button>`;
+  el.querySelector('.x').onclick = () => el.remove();
+  el.querySelectorAll('a').forEach(a => a.addEventListener('click', () => el.remove()));
+  $('#toasts').prepend(el);
+  [...$('#toasts').children].slice(2).forEach(x => x.remove());
+  setTimeout(() => el.remove(), ms);
+}
+function modal(html, wide=false){
+  $('#modal-root').innerHTML = `<div class="overlay" data-act="close-bg"><div class="dialog ${wide?'wide':''}" role="dialog" aria-modal="true">${html}</div></div>`;
+  const f = $('#modal-root').querySelector('input.field, select.field, textarea.field, .btn.primary'); if (f) f.focus();
+}
+const closeModal = () => { $('#modal-root').innerHTML = ''; };
+const dHead = (title, sub='') => `<div class="d-head"><div><h2>${title}</h2>${sub?`<div class="muted small" style="margin-top:4px">${sub}</div>`:''}</div><button class="x" data-act="close" aria-label="Close">${ic('x',20)}</button></div>`;
+
+function markDone(c, text){ S.done[c.id] = text; }
+function msgModal(c, tpl){
+  const names = {rebook:'Rebooking reminder', followup:'Personal follow-up', offer:'Comeback offer (15%)', feedback:'Feedback request', winback:'Win-back offer', noshow:'No-show follow-up'};
+  const mk = ['rebook','followup','offer','winback'].includes(tpl);
+  const blocked = mk && !c.mkt;
+  modal(`${dHead(`Send ${names[tpl].toLowerCase()} to ${esc(first(c))}`, `${esc(c.phone)} · WhatsApp · ${mk?'Marketing':'Utility'} template`)}
+   <div class="d-body"><div class="grid-2 even" style="align-items:start">
+     <div>${phone(`<div class="bub">${msgText(tpl,c)}<span class="t">now</span></div>`, c.name)}</div>
+     <div class="stack">
+       <div><label class="lbl" for="tplsel">Template</label><select id="tplsel" class="field" data-act-change="swap-tpl" data-id="${c.id}">${Object.entries(names).map(([k,v]) => `<option value="${k}" ${k===tpl?'selected':''}>${v}</option>`).join('')}</select></div>
+       <div class="check-list">
+         ${mk ? (c.mkt ? `<div class="ok">${ic('check')}<span>Opted in to offers and reminders</span></div>` : `<div class="bad">${ic('x')}<span>Not opted in to offers. Only appointment messages are allowed.</span></div>`) : `<div class="ok">${ic('check')}<span>Appointment messages allowed</span></div>`}
+         <div class="ok">${ic('check')}<span>No offer sent in the last ${S.settings.cap} days</span></div>
+         <div class="ok">${ic('check')}<span>Inside sending hours (9 am – 9 pm)</span></div>
+         <div>${ic('spark')}<span class="muted">AI filled in the service, staff and timing from ${esc(first(c))}’s history.</span></div>
+       </div>
+     </div></div></div>
+   <div class="d-foot"><button class="btn" data-act="close">Cancel</button><button class="btn primary" data-act="send" data-id="${c.id}" data-tpl="${tpl}" ${blocked?'disabled style="opacity:.5;cursor:not-allowed"':''}>${ic('send')}Send on WhatsApp</button></div>`, true);
+}
+function callModal(c){
+  const pts = c.fb <= 2 ? ['Apologise for the 35-minute wait on her last visit','Explain the new booking buffer so it does not happen again','Offer her usual '+c.service+' with Maria at a time she chooses'] :
+    [`It has been ${c.last} days; her usual gap is ${c.interval}`, `Ask about her ${c.service}${c.staff?` with ${c.staff}`:''}`, 'Offer this Saturday morning, her preferred slot'];
+  modal(`${dHead(`Call ${esc(c.name)}`, esc(c.phone))}
+   <div class="d-body">
+     <div class="card insight" style="padding:14px"><span class="eyebrow">${ic('spark',14)}Talking points</span><ul style="margin:8px 0 0;padding-left:18px;line-height:1.7">${pts.map(p => `<li>${esc(p)}</li>`).join('')}</ul></div>
+     <div><span class="lbl">How did it go?</span><div class="stack" style="gap:8px">${['Booked an appointment','Asked to call back later','Not interested','No answer'].map((o,i) => `<label class="radio-card"><input type="radio" name="out" value="${o}" ${i===0?'checked':''}>${o}</label>`).join('')}</div></div>
+   </div>
+   <div class="d-foot"><button class="btn" data-act="close">Cancel</button><button class="btn primary" data-act="save-call" data-id="${c.id}">Save outcome</button></div>`);
+}
+function registerModal(fromCam=false){
+  modal(`${dHead('Register new customer', fromCam ? 'Visitor at the entrance · 1 visit will be recorded' : 'Add a customer to Glow Studio')}
+   <form class="d-body" id="regform">
+     <div class="form-grid">
+       <div><label class="lbl" for="r-name">Full name</label><input id="r-name" class="field" required value="Sara Imtiaz"></div>
+       <div><label class="lbl" for="r-phone">WhatsApp number</label><input id="r-phone" class="field" required value="+92 302 441 8820"></div>
+       <div><label class="lbl" for="r-svc">Service today</label><select id="r-svc" class="field"><option>Haircut + blow-dry</option><option>Hydra facial</option><option>Gel manicure</option><option>Keratin treatment</option><option>Haircut</option></select></div>
+       <div><label class="lbl" for="r-ref">Who referred you?</label><select id="r-ref" class="field"><option value="">Nobody / walk-in</option>${C.filter(c=>c.visits>3).map(c => `<option value="${c.id}" ${c.id===10?'selected':''}>${esc(c.name)}</option>`).join('')}</select></div>
+     </div>
+     <div><span class="lbl">Consent (each one is optional and separate)</span><div class="stack" style="gap:8px">
+       <label class="consent"><input type="checkbox" id="r-face" checked><span><b>Face ID check-in</b>Stores an encrypted face template, not a photo. Deleted after 12 months without a visit or when you ask.</span></label>
+       <label class="consent"><input type="checkbox" id="r-wa" checked><span><b>WhatsApp appointment messages</b>Confirmations, reminders and feedback requests.</span></label>
+       <label class="consent"><input type="checkbox" id="r-mkt"><span><b>WhatsApp offers and reminders</b>Up to one message a week. Reply STOP any time.</span></label>
+     </div></div>
+     <input type="hidden" id="r-cam" value="${fromCam?1:0}">
+   </form>
+   <div class="d-foot"><button class="btn" data-act="close">Cancel</button><button class="btn primary" data-act="save-reg">${ic('check')}Register${fromCam?' and check in':''}</button></div>`);
+}
+function campaignModal(){
+  modal(`${dHead('New campaign','Pick who receives it and what they get')}
+   <div class="d-body">
+     <div><label class="lbl" for="k-name">Campaign name</label><input id="k-name" class="field" value="October comeback"></div>
+     <div><span class="lbl">Who receives it</span><div class="stack" style="gap:8px" id="k-segs">${SEGS.map((s,i) => `<label class="radio-card"><input type="radio" name="seg" value="${s.id}" ${i===3?'checked':''}>${s.name}<span class="n">${s.n} customers</span></label>`).join('')}</div></div>
+     <div class="form-grid">
+       <div><label class="lbl" for="k-offer">Offer</label><select id="k-offer" class="field"><option value="0">No offer, reminder only</option><option value="10" selected>10% off any service</option><option value="20">20% off any service</option><option value="spa">Free hair spa add-on</option></select></div>
+       <div><label class="lbl" for="k-when">Send</label><select id="k-when" class="field"><option>Tomorrow, 11:00 am</option><option>Saturday, 10:00 am</option><option>Now</option></select></div>
+     </div>
+     <div class="card" id="k-est" style="background:var(--surface-2);border:0"></div>
+   </div>
+   <div class="d-foot"><button class="btn" data-act="close">Cancel</button><button class="btn primary" data-act="launch">${ic('mega')}Schedule campaign</button></div>`);
+  estimate();
+}
+function estimate(){
+  const box = $('#k-est'); if (!box) return;
+  const seg = SEGS.find(s => s.id === (document.querySelector('input[name=seg]:checked')||{}).value) || SEGS[0];
+  const off = $('#k-offer').value;
+  const boost = off === '20' ? 1.5 : off === '10' ? 1.25 : off === 'spa' ? 1.3 : 1;
+  const disc = off === '20' ? .8 : off === '10' ? .9 : 1;
+  const reach = Math.round(seg.n * .9 * .81 * .93);
+  const book = Math.round(reach * seg.rate * boost);
+  const rev = book * seg.tk * disc;
+  box.innerHTML = `<div class="row" style="gap:24px"><div><span class="faint small">Will receive</span><b class="num" style="display:block;font-size:20px;font-family:var(--f-display)">${reach}</b></div><div><span class="faint small">Expected bookings</span><b class="num" style="display:block;font-size:20px;font-family:var(--f-display)">${book}</b></div><div><span class="faint small">Expected revenue</span><b class="num" style="display:block;font-size:20px;font-family:var(--f-display)">${fmtK(rev)}</b></div></div><p class="small muted" style="margin:8px 0 0">After removing a 10% holdout group, customers without offer opt-in, and anyone messaged in the last ${S.settings.cap} days.</p>`;
+  box.dataset.reach = reach;
+}
+
+/* ---------- check-in simulation ---------- */
+const SCRIPT = [
+  {type:'match', cid:1, conf:97}, {type:'confirm', cid:3, conf:83}, {type:'unknown'},
+  {type:'match', cid:4, conf:95}, {type:'match', cid:9, conf:94}, {type:'match', cid:13, conf:91}, {type:'match', cid:7, conf:96}
+];
+function checkIn(c, source, conf, time){
+  const prev = status(c);
+  const avgT = avg(c);
+  const wasOverdueGap = c.last;
+  if (c.prevLast === undefined && c.last > 0) c.prevLast = c.last;
+  c.last = 0; c.visits++; c.spend += Math.round(avgT);
+  S.visitsToday++;
+  S.arrivals.forEach(a => a.fresh = false);
+  S.arrivals.unshift({time, cid:c.id, source, conf, prev, fresh:true});
+  addEvent(c.id, {type:'visit', title:'Checked in today', text:`${source}${conf?` · ${conf}% match`:''}`, time});
+  if (['Due','Overdue','At Risk','Lost'].includes(prev)) S.recoveredSession += Math.round(avgT);
+  if (S.done[c.id] === undefined && !action(c)) {}
+  const alertNeeded = c.tier === 'VIP' || prev === 'At Risk' || prev === 'Overdue';
+  if (alertNeeded) {
+    let body = '';
+    if (c.fb <= 2) body = `Rated last visit ${c.fb}/5 (“${esc(c.fbNote)}”). Manager notified. Greet her personally.`;
+    else if (prev === 'Overdue' || prev === 'At Risk') body = `Back after ${wasOverdueGap} days (usual ${c.interval}). ${c.prefs ? esc(c.prefs.split(' · ')[0]) + '. ' : ''}Book her next ${esc(c.service.toLowerCase())} before she leaves.`;
+    else body = `${esc(c.prefs.split(' · ')[0] || 'Usual: '+c.service)}.`;
+    toast({title:`${c.tier==='VIP'?'★ VIP arrived':'Returning customer'}: ${esc(c.name)}`, body: (prev!=='Active'?`<b>Was ${prev}.</b> `:'') + body, tone: c.fb<=2 ? 'var(--s-risk)' : 'var(--gold)', cta:{label:'Open profile', href:`#customer-${c.id}`}, ms:9000});
+  } else {
+    toast({title:`${esc(c.name)} checked in`, body:`${source}${conf?` · ${conf}% match`:''}`, cta:{label:'Open profile', href:`#customer-${c.id}`}});
+  }
+}
+function simulate(){
+  const sc = SCRIPT[S.simI % SCRIPT.length]; S.simI++;
+  const time = clock();
+  $('#sim-btn').classList.remove('pulse');
+  if (sc.type === 'match'){
+    const c = byId(sc.cid);
+    if (!c) { simulate(); return; }
+    S.cam = {mode:'match', cid:c.id, conf:sc.conf, time, prev:status(c)};
+    checkIn(c, 'Face ID', sc.conf, time);
+  } else if (sc.type === 'confirm'){
+    const c = byId(sc.cid);
+    S.cam = {mode:'confirm', cid:c.id, conf:sc.conf, time};
+    S.pending.push({type:'confirm', cid:c.id, conf:sc.conf, time});
+    toast({title:'Please confirm a possible match', body:`Looks like ${esc(c.name)} (${sc.conf}%). Confirm at the front desk.`, tone:'var(--s-due)', cta:{label:'Review', href:'#checkin'}, ms:8000});
+  } else {
+    S.cam = {mode:'unknown', time};
+    S.pending.push({type:'unknown', time});
+    toast({title:'Unrecognised visitor at the entrance', body:'No face data stored. Offer registration or look up by phone.', tone:'var(--s-lost)', cta:{label:'Review', href:'#checkin'}, ms:8000});
+  }
+  render();
+}
+function resolvePending(pred){ S.pending = S.pending.filter(p => !pred(p)); }
+
+/* ---------- events ---------- */
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]');
+  if (!el) return;
+  const act = el.dataset.act, id = el.dataset.id, c = id ? byId(id) : null;
+  if (act === 'close-bg') { if (e.target === el) closeModal(); return; }
+  switch (act) {
+    case 'simulate': simulate(); break;
+    case 'close': closeModal(); break;
+    case 'noop': break;
+    case 'open-customer': location.hash = 'customer-' + id; break;
+    case 'statusF': S.statusF = el.dataset.s; render(); break;
+    case 'actF': S.actF = el.dataset.s; render(); break;
+    case 'msg': msgModal(c, el.dataset.tpl); break;
+    case 'call': callModal(c); break;
+    case 'send': {
+      const tpl = el.dataset.tpl;
+      const names = {rebook:'Rebooking reminder', followup:'Personal follow-up', offer:'Comeback offer', feedback:'Feedback request', winback:'Win-back offer', noshow:'No-show follow-up'};
+      addEvent(c.id, {type:'message', title:`${names[tpl]} sent`, text:'WhatsApp template · Delivered', time:clockNow()});
+      markDone(c, `${names[tpl]} sent on WhatsApp`);
+      closeModal(); render();
+      toast({title:`${names[tpl]} sent to ${esc(first(c))}`, body:'Delivered on WhatsApp. Replies appear in her timeline.'});
+      break; }
+    case 'save-call': {
+      const out = document.querySelector('input[name=out]:checked').value;
+      addEvent(c.id, {type:'call', title:'Phone call logged', text:out, time:clockNow()});
+      if (out === 'Booked an appointment') { c.fbResolved = true; S.appts.push({time:'Sat 11:00', cid:c.id, svc:c.service, staff:c.staff, st:'Booked'}); }
+      markDone(c, `Called: ${out.toLowerCase()}`);
+      closeModal(); render();
+      toast({title:'Call outcome saved', body: out === 'Booked an appointment' ? `${esc(first(c))} is booked for Saturday 11:00 with ${esc(c.staff)}.` : esc(out)});
+      break; }
+    case 'addcamp':
+      modal(`${dHead(`Add ${esc(c.name)} to a win-back campaign?`)}<div class="d-body"><div class="note">${c.mkt ? `She will get the <b>October win-back: 20% off</b> message tomorrow at 11:00.` : `${esc(first(c))} has not opted in to offers, so the campaign can’t message ${c.name.startsWith('Bilal')?'him':'her'}. The system will ask for consent at the next visit, or staff can call instead.`}</div></div><div class="d-foot"><button class="btn" data-act="close">Cancel</button>${c.mkt?`<button class="btn primary" data-act="addcamp-ok" data-id="${c.id}">Add to campaign</button>`:`<button class="btn primary" data-act="call" data-id="${c.id}">${ic('phone')}Call instead</button>`}</div>`);
+      break;
+    case 'addcamp-ok': markDone(c, 'Added to October win-back campaign'); closeModal(); render(); toast({title:`${esc(c.name)} added to the win-back campaign`}); break;
+    case 'skip':
+      modal(`${dHead(`Skip ${esc(first(c))} for today?`, 'The reason helps tune future recommendations')}<div class="d-body"><select id="skipr" class="field"><option>Already in touch with the customer</option><option>Customer is travelling</option><option>Not the right time</option><option>Recommendation is wrong</option></select></div><div class="d-foot"><button class="btn" data-act="close">Cancel</button><button class="btn primary" data-act="skip-ok" data-id="${c.id}">Skip</button></div>`);
+      break;
+    case 'skip-ok': markDone(c, `Skipped: ${$('#skipr').value.toLowerCase()}`); closeModal(); render(); break;
+    case 'undo': delete S.done[c.id]; render(); break;
+    case 'confirm-yes': case 'confirm-no': {
+      const p = S.pending.find(p => p.type === 'confirm' && (S.cam.cid ? p.cid === S.cam.cid : true));
+      const cc = byId(S.cam.cid);
+      resolvePending(x => x === p);
+      if (act === 'confirm-yes') { const pv = status(cc); checkIn(cc, 'Face ID, confirmed by staff', S.cam.conf, S.cam.time); S.cam = {mode:'match', cid:cc.id, conf:S.cam.conf, time:S.cam.time, prev:pv}; S.audit.unshift({t:'Today '+S.cam.time, who:'Rida Aslam', what:'Confirmed face match', target:`${cc.name} (${S.cam.conf}%)`}); }
+      else { S.cam = {mode:'unknown', time:S.cam.time}; S.pending.push({type:'unknown', time:S.cam.time}); S.audit.unshift({t:'Today '+S.cam.time, who:'Rida Aslam', what:'Rejected face match', target:`${cc.name} (${S.cam.conf}%)`}); }
+      render(); break; }
+    case 'open-pending': {
+      const p = S.pending[+el.dataset.i];
+      S.cam = p.type === 'confirm' ? {mode:'confirm', cid:p.cid, conf:p.conf, time:p.time} : {mode:'unknown', time:p.time};
+      if (location.hash !== '#checkin') location.hash = 'checkin'; else render();
+      break; }
+    case 'register': registerModal(S.page === 'checkin' && S.cam.mode === 'unknown'); break;
+    case 'lookup':
+      modal(`${dHead('Find customer by phone')}<div class="d-body"><input id="lk" class="field" value="+92 300 118 5572" aria-label="Phone number"><div class="note">Match found: <b>Hamza Ali</b> · Overdue · not opted in to Face ID</div></div><div class="d-foot"><button class="btn" data-act="close">Cancel</button><button class="btn primary" data-act="lookup-ok">Check in Hamza</button></div>`);
+      break;
+    case 'lookup-ok': {
+      const h = byId(16); closeModal();
+      resolvePending(p => p.type === 'unknown' && p.time === S.cam.time);
+      if (h) { S.cam = {mode:'match', cid:16, conf:null, time:S.cam.time, prev:status(h)}; checkIn(h, 'Phone lookup', null, S.cam.time); }
+      render(); break; }
+    case 'dismiss-unknown': resolvePending(p => p.type === 'unknown' && p.time === S.cam.time); S.cam = {mode:'idle'}; render(); break;
+    case 'save-reg': {
+      const name = $('#r-name').value.trim(), ph = $('#r-phone').value.trim();
+      if (!name || !ph) { toast({title:'Name and phone are required', tone:'var(--s-risk)'}); return; }
+      const nc = {id:nextId(), name, phone:ph, tier:'Standard', visits:0, spend:0, last:0, interval:30, service:$('#r-svc').value, staff:'Sana', face:$('#r-face').checked, mkt:$('#r-mkt').checked, lang:'English', bday:'—', fb:5, prefs:'', notes:'', refs:0, refBy: $('#r-ref').value ? +$('#r-ref').value : null};
+      const fromCam = $('#r-cam').value === '1';
+      const t = fromCam ? S.cam.time : clockNow();
+      C.push(nc);
+      const est = {'Haircut + blow-dry':4500,'Hydra facial':3500,'Gel manicure':3200,'Keratin treatment':12000,'Haircut':1500}[nc.service] || 3000;
+      nc.visits = 1; nc.spend = est; S.visitsToday++; S.newToday++;
+      S.arrivals.forEach(a => a.fresh = false);
+      S.arrivals.unshift({time:t, cid:nc.id, source:'New customer registered', fresh:true});
+      if (nc.refBy) { const r = byId(nc.refBy); r.refs++; r.refRev = (r.refRev||0) + est; }
+      S.audit.unshift({t:'Today '+t, who:'Rida Aslam', what:`Consent recorded: ${[nc.face&&'Face ID', $('#r-wa').checked&&'WhatsApp messages', nc.mkt&&'WhatsApp offers'].filter(Boolean).join(', ') || 'none'}`, target:name});
+      if (fromCam) { resolvePending(p => p.type === 'unknown' && p.time === S.cam.time); S.cam = {mode:'match', cid:nc.id, conf:nc.face?100:null, time:t, prev:'New'}; }
+      closeModal(); render();
+      toast({title:`${esc(name)} registered`, body: `${nc.face ? 'Face template saved (encrypted). ' : 'No face data stored. '}${nc.refBy ? 'Referral credited to '+esc(byId(nc.refBy).name)+'.' : ''}`, cta:{label:'Open profile', href:`#customer-${nc.id}`}});
+      break; }
+    case 'toggle-face': {
+      c.face = !c.face;
+      S.audit.unshift({t:'Today '+clockNow(), who:'Rida Aslam', what: c.face ? 'Face ID consent recorded' : 'Face ID consent withdrawn, template deleted', target:c.name});
+      addEvent(c.id, {type:'consent', title: c.face ? 'Opted in to Face ID' : 'Withdrew Face ID consent', text: c.face ? 'Face template will be captured at next visit' : 'Face template deleted. Profile and history kept.', time:clockNow()});
+      render(); toast({title: c.face ? 'Face ID turned on' : 'Face template deleted', body: c.face ? 'Recorded in the audit log.' : 'The profile and visit history are kept.'}); break; }
+    case 'toggle-mkt': c.mkt = !c.mkt; addEvent(c.id, {type:'consent', title: c.mkt?'Opted in to WhatsApp offers':'Opted out of WhatsApp offers', text:'Changed by staff at customer request', time:clockNow()}); render(); break;
+    case 'export': S.audit.unshift({t:'Today '+clockNow(), who:'Rida Aslam', what:'Exported customer data on request', target:c.name}); toast({title:'Export prepared', body:`${esc(first(c))}’s profile, visits, messages and consent history are ready to send to her. Logged in the audit log.`}); break;
+    case 'delete':
+      modal(`${dHead(`Delete ${esc(c.name)}?`)}<div class="d-body"><p style="margin:0">This permanently deletes the profile, face template, visit history, messages and feedback. Billing totals are kept without her name for accounting.</p></div><div class="d-foot"><button class="btn" data-act="close">Keep customer</button><button class="btn primary" style="background:var(--s-risk);border-color:var(--s-risk)" data-act="delete-ok" data-id="${c.id}">${ic('trash')}Delete permanently</button></div>`);
+      break;
+    case 'delete-ok': { const idx = C.indexOf(c); C.splice(idx,1); S.audit.unshift({t:'Today '+clockNow(), who:'Rida Aslam', what:'Deleted customer and all personal data', target:`Customer #${String(c.id).padStart(4,'0')}`}); closeModal(); location.hash = 'customers'; toast({title:'Customer deleted', body:'Recorded in the audit log without personal details.'}); break; }
+    case 'book': toast({title:'Booking calendar', body:'In the full product this opens the booking calendar with the customer’s usual service and staff pre-selected.', tone:'var(--s-new)'}); break;
+    case 'appt-in': { const a = S.appts[+el.dataset.i]; const cc = byId(a.cid); a.st = 'Checked in'; if (cc) checkIn(cc, 'Booked appointment', null, clockNow()); render(); break; }
+    case 'appt-noshow': { const a = S.appts[+el.dataset.i]; const cc = byId(a.cid); a.st = 'No-show'; if (cc) addEvent(cc.id, {type:'message', title:'No-show follow-up sent', text:'WhatsApp template · Delivered', time:clockNow()}); render(); toast({title:`Marked ${esc(cc?first(cc):'customer')} as a no-show`, body:'A follow-up with a rebooking link was sent on WhatsApp.', tone:'var(--s-risk)'}); break; }
+    case 'new-campaign': campaignModal(); break;
+    case 'launch': {
+      const seg = SEGS.find(s => s.id === document.querySelector('input[name=seg]:checked').value);
+      const offT = $('#k-offer').selectedOptions[0].text;
+      S.campaigns.unshift({name:$('#k-name').value || 'Untitled campaign', seg:seg.name, offer:offT, st:'Scheduled', when:$('#k-when').value, sent:0, read:0, replied:0, booked:0, rev:0, reach:+$('#k-est').dataset.reach});
+      closeModal(); render(); toast({title:'Campaign scheduled', body:`${esc(seg.name)} · ${esc(offT)}`}); break; }
+    case 'tpl': if (e.target.closest('.switch')) break; S.tplSel = id; render(); break;
+    case 'tpl-toggle': { const t = S.templates.find(x => x.id === id); t.on = !t.on; render(); toast({title:`${t.name} ${t.on?'turned on':'paused'}`}); break; }
+    case 'lang': S.tplLang = el.dataset.l; render(); break;
+    case 'footage': S.settings.footage = !S.settings.footage; S.audit.unshift({t:'Today '+clockNow(), who:'Rida Aslam', what:`Camera footage storage turned ${S.settings.footage?'on (7 days)':'off'}`, target:'—'}); render(); break;
+  }
+});
+function clockNow(){ return S.clock.map(n => String(n).padStart(2,'0')).join(':'); }
+
+document.addEventListener('input', e => {
+  if (e.target.id === 'q') { S.q = e.target.value; $('#ctable').innerHTML = custRows(); }
+  if (e.target.dataset.set === 'high' || e.target.dataset.set === 'low') {
+    const k = e.target.dataset.set; S.settings[k] = +e.target.value;
+    if (S.settings.low >= S.settings.high) { S.settings.low = S.settings.high - 1; $('#low').value = S.settings.low; $('#low-v').textContent = S.settings.low + '%'; }
+    $('#'+k+'-v').textContent = S.settings[k] + '%';
+  }
+});
+document.addEventListener('change', e => {
+  if (e.target.id === 'tierF') { S.tierF = e.target.value; $('#ctable').innerHTML = custRows(); }
+  if (e.target.dataset.set === 'cap' || e.target.dataset.set === 'retention') { S.settings[e.target.dataset.set] = e.target.value; toast({title:'Setting saved'}); }
+  if (e.target.id === 'tplsel') msgModal(byId(e.target.dataset.id), e.target.value);
+  if (e.target.name === 'seg' || e.target.id === 'k-offer') estimate();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('tr.click')) { e.preventDefault(); e.target.click(); }
+});
+
+go();
+setTimeout(() => toast({title:'Welcome to the Revisit prototype', body:'All names and figures are sample data. Press <b>Simulate arrival</b> to watch a customer walk in, then explore the other pages.', ms:9000}), 600);
+</script>
+
+</body></html>
